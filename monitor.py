@@ -105,6 +105,7 @@ class BehaviorHandler(FileSystemEventHandler):
 
     def on_modified(self, event):
         if not event.is_directory:
+            print("DEBUG MODIFIED:", event.src_path)
             self.log_event(event.src_path)
 
     def on_moved(self, event):

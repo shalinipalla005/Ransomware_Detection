@@ -1,0 +1,1 @@
+### ransomw.exe -> pyinstaller --onefile ransom.py
