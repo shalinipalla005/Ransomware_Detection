@@ -60,11 +60,12 @@ def static_analysis(file_path):
     }
 
 
-if __name__ == "__main__":
-    file = "dist/ransom.exe"
-
+def run_static_layer(file):
     result = static_analysis(file)
 
-    print("\n=== STATIC ANALYSIS (REAL TOOLS) ===")
+    print("\n=== LAYER 1: STATIC ANALYSIS ===")
+
     for k, v in result.items():
         print(k, ":", v)
+
+    return result
