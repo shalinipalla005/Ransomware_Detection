@@ -6,12 +6,12 @@ Ransomware Attacks using Machine Learning" (COMSNETS 2018)
 IIT Delhi - Shaukat & Ribeiro
 
 Architecture:
-  HoneyFileManager  → deploys decoy files & directories (Section III-B-2)
-  TrapMonitor       → watches file ops via watchdog (Section III-D-2)
-  BehaviorDetector  → detects crypto APIs, bcdedit, vssadmin, registry (Section III-D-2)
-  FeatureCollector  → aggregates triggered features → suspicion score (Section IV-A)
-  RansomWallLogger  → structured event log
-  TrapLayer         → orchestrates everything; exposes get_status()
+  HoneyFileManager  -> deploys decoy files & directories (Section III-B-2)
+  TrapMonitor       -> watches file ops via watchdog (Section III-D-2)
+  BehaviorDetector  -> detects crypto APIs, bcdedit, vssadmin, registry (Section III-D-2)
+  FeatureCollector  -> aggregates triggered features -> suspicion score (Section IV-A)
+  RansomWallLogger  -> structured event log
+  TrapLayer         -> orchestrates everything; exposes get_status()
 
 Paper mapping for each component is documented inline.
 """
@@ -112,7 +112,7 @@ SUSPICIOUS_REGISTRY_KEYS = [
     r"SYSTEM\CurrentControlSet\Control\SafeBoot",
 ]
 
-# Suspicion score weights – maps feature name → weight
+# Suspicion score weights – maps feature name -> weight
 # Paper §IV-A: "if Feature Collector observes presence of 6 or more feature
 # indicators in the Compact Feature Set, the process is tagged as suspicious"
 FEATURE_WEIGHTS: Dict[str, float] = {
@@ -121,8 +121,8 @@ FEATURE_WEIGHTS: Dict[str, float] = {
     "honey_file_delete":      2.0,
     "honey_dir_modified":     1.5,
     "crypto_api_usage":       1.5,   # massive use of Windows Crypto APIs
-    "safe_mode_disabled":     3.0,   # bcdedit → near-certain ransomware
-    "vss_deletion":           3.0,   # vssadmin/wmic → near-certain ransomware
+    "safe_mode_disabled":     3.0,   # bcdedit -> near-certain ransomware
+    "vss_deletion":           3.0,   # vssadmin/wmic -> near-certain ransomware
     "registry_persistence":   1.0,
     "entropy_spike":          1.5,   # high Shannon entropy on writes
 }
@@ -199,7 +199,7 @@ class HoneyFileManager:
         self.logger = logger
         self.honey_files: Set[str] = set()   # absolute paths
         self.honey_dirs:  Set[str] = set()
-        self.checksums:   Dict[str, str] = {}   # path → sha256
+        self.checksums:   Dict[str, str] = {}   # path -> sha256
 
     # ---------------------------------------------------------------------- #
     def deploy(self, directories: Optional[List[Path]] = None) -> int:
@@ -379,8 +379,8 @@ class FeatureCollector:
     def get_status(self, pid: Optional[int] = None) -> dict:
         """
         Return detection status.
-        If pid is given → single-process dict.
-        Otherwise → dict of all suspicious processes.
+        If pid is given -> single-process dict.
+        Otherwise -> dict of all suspicious processes.
         """
         with self._lock:
             if pid is not None:
@@ -496,7 +496,7 @@ class TrapEventHandler(FileSystemEventHandler):
         dst = getattr(event, "dest_path", "")
         if self.honey_mgr.is_honey(src) or self.honey_mgr.is_honey(dst):
             self._fire(src, "honey_file_rename", event,
-                       extra=f"→ {dst}")
+                       extra=f"-> {dst}")
 
     def on_created(self, event: FileSystemEvent):
         # A new file inside a honey directory is also suspicious
@@ -578,13 +578,13 @@ class BehaviorDetector:
                 name = (proc.info["name"] or "").lower()
                 cmdline = " ".join(proc.info["cmdline"] or []).lower()
 
-                # §III-D-2c  bcdedit usage → safe-mode disabling
+                # §III-D-2c  bcdedit usage -> safe-mode disabling
                 if "bcdedit" in name or "bcdedit" in cmdline:
                     if "bootstatuspolicy" in cmdline or "safeboot" in cmdline:
                         self._fire(pid, "safe_mode_disabled",
                                    target=name, extra=cmdline[:120])
 
-                # §III-D-2d  vssadmin / wmic → VSS deletion
+                # §III-D-2d  vssadmin / wmic -> VSS deletion
                 if name in ("vssadmin.exe", "wmic.exe", "wbadmin.exe"):
                     if any(kw in cmdline for kw in
                            ("delete", "shadowcopy", "shadows")):

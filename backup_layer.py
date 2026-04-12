@@ -14,9 +14,9 @@ Paper §III-B-4 (File Backup Layer):
    original locations and Process ID of the suspicious process."
 
   "If Machine Learning Layer classifies as Ransomware:
-     → process is killed AND files modified by it are restored."
+     -> process is killed AND files modified by it are restored."
   "If classified as Benign:
-     → files are deleted from the backup folder."
+     -> files are deleted from the backup folder."
 
   Paper §IV-A (IRP Filter integration):
   "Filtered IRPs are forwarded to File Backup Layer. If it observes a
@@ -57,7 +57,7 @@ class BackupLayer:
         self.backup_dir = Path(backup_dir)
         self.backup_dir.mkdir(parents=True, exist_ok=True)
 
-        # In-memory map:  pid → [(original_path, backup_path), ...]
+        # In-memory map:  pid -> [(original_path, backup_path), ...]
         # Persisted to manifest.json per PID for crash recovery.
         self._backup_map: Dict[int, List[Tuple[str, str]]] = defaultdict(list)
         self._lock = threading.Lock()
@@ -98,7 +98,7 @@ class BackupLayer:
                 shutil.copy2(f, dst)
                 new_entries.append((f, dst))
                 backed_count += 1
-                log.debug(f"[BackupLayer] Backed up: {f} → {dst}")
+                log.debug(f"[BackupLayer] Backed up: {f} -> {dst}")
             except Exception as e:
                 log.warning(f"[BackupLayer] Could not back up {f}: {e}")
 
@@ -135,7 +135,7 @@ class BackupLayer:
                     os.makedirs(os.path.dirname(original), exist_ok=True)
                     shutil.copy2(backup_path, original)
                     restored += 1
-                    log.debug(f"[BackupLayer] Restored: {backup_path} → {original}")
+                    log.debug(f"[BackupLayer] Restored: {backup_path} -> {original}")
                 else:
                     log.warning(f"[BackupLayer] Backup file missing: {backup_path}")
             except Exception as e:

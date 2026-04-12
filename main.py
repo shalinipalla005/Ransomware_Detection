@@ -40,7 +40,7 @@ Paper Section IV-A Workflow:
   Step 7 - Action: kill + restore (ransomware) OR delete backup (benign).
 """
 
-import os
+import os, io
 import sys
 import time
 import signal
@@ -98,18 +98,19 @@ def _setup_logging(log_path: str = "ransomwall_main.log") -> logging.Logger:
     if logger.handlers:
         return logger
 
-    fh = logging.FileHandler(log_path, mode="a")
+    fh = logging.FileHandler(log_path, mode="a", encoding="utf-8")  # <-- add encoding
     fh.setFormatter(fmt)
     fh.setLevel(logging.DEBUG)
 
-    sh = logging.StreamHandler(sys.stdout)
+    # Force UTF-8 on stdout to handle Unicode arrow characters
+    utf8_stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sh = logging.StreamHandler(utf8_stdout)  # <-- wrap stdout
     sh.setFormatter(fmt)
     sh.setLevel(logging.INFO)
 
     logger.addHandler(fh)
     logger.addHandler(sh)
     return logger
-
 
 # ===========================================================================
 # FEATURE AGGREGATOR

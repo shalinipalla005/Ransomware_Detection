@@ -284,7 +284,7 @@ def run_static_layer(file_path: str) -> Dict:
     if result["packed_sections"]:
         print(f"  Packed Sections  : {len(result['packed_sections'])} found")
         for sec in result["packed_sections"]:
-            print(f"    → {sec['name']:<20} entropy={sec['entropy']}")
+            print(f"    -> {sec['name']:<20} entropy={sec['entropy']}")
     else:
         print("  Packed Sections  : None detected")
 

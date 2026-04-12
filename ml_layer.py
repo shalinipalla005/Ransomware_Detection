@@ -10,7 +10,7 @@ Paper §III-B-5 (Machine Learning Engine):
   • Supervised learning (Gradient Tree Boosting gives best results: 98.25% TPR)
   • Feature input: merged Static + Dynamic + Trap layer features
   • Moving-average sliding window (Bucket = 1 second, window = 3 intervals)
-  • Final verdict: same classification for 3 CONTIGUOUS intervals → confirmed
+  • Final verdict: same classification for 3 CONTIGUOUS intervals -> confirmed
 
 Paper §IV-C (ML Implementation):
   "The Machine Learning Layer outputs a suspicious process as Ransomware
@@ -83,7 +83,7 @@ class RuleBasedClassifier:
     Used when no trained model (rw_model.pkl) is available.
 
     Score thresholds derived from paper §IV-A:
-    "6 or more feature indicators → suspicious"
+    "6 or more feature indicators -> suspicious"
     We use weighted scoring matching the paper's compact feature set.
     """
 
@@ -141,9 +141,9 @@ class MLModel:
       - Only returns "ransomware" when ≥2 of last 3 buckets = Ransomware.
 
     Public API:
-      predict(pid, features) → "ransomware" | "benign"
-      train(X, y)            → fit the GBT model from labeled data
-      save() / load()        → persist / restore trained model
+      predict(pid, features) -> "ransomware" | "benign"
+      train(X, y)            -> fit the GBT model from labeled data
+      save() / load()        -> persist / restore trained model
     """
 
     def __init__(self, model_path: str = MODEL_PATH, scaler_path: str = SCALER_PATH):
@@ -171,10 +171,10 @@ class MLModel:
     def predict(self, pid: int, features: dict) -> str:
         """
         Paper §IV-C workflow:
-          1. Feature vector → binary prediction for this bucket.
+          1. Feature vector -> binary prediction for this bucket.
           2. Append to sliding window (deque maxlen=3).
-          3. If 3 buckets filled AND ≥2 are Ransomware → return "ransomware".
-          4. Otherwise → return "benign".
+          3. If 3 buckets filled AND ≥2 are Ransomware -> return "ransomware".
+          4. Otherwise -> return "benign".
         """
         # Ensure sliding-window structures exist
         if pid not in self._history:
@@ -266,7 +266,7 @@ class MLModel:
         if self._model:
             with open(self.model_path, "wb")  as f: pickle.dump(self._model,  f)
             with open(self.scaler_path, "wb") as f: pickle.dump(self._scaler, f)
-            log.info(f"[MLModel] Model saved → {self.model_path}")
+            log.info(f"[MLModel] Model saved -> {self.model_path}")
 
     def _load_model_if_available(self):
         """Load persisted model if it exists."""

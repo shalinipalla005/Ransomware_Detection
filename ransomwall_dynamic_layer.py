@@ -15,12 +15,12 @@ Paper §IV-A: File System activities are monitored by analyzing IRPs
 operations on ONLY user data files to the Dynamic Analysis Engine.
 
 Architecture:
-  FileOperationTracker  → per-process counters for DINFO/READ/WRITE/RENAME/DELETE
-  EntropyAnalyzer       → Shannon entropy computation on written file content
-  FingerprintChecker    → magic-byte vs extension mismatch detection
-  SlidingWindowBuffer   → 1-second buckets, 3-bucket moving average (§IV-C)
-  DynamicAnalyzer       → orchestrator; watchdog handler + pattern scoring
-  DynamicEngine         → top-level entry point; exposes get_status()
+  FileOperationTracker  -> per-process counters for DINFO/READ/WRITE/RENAME/DELETE
+  EntropyAnalyzer       -> Shannon entropy computation on written file content
+  FingerprintChecker    -> magic-byte vs extension mismatch detection
+  SlidingWindowBuffer   -> 1-second buckets, 3-bucket moving average (§IV-C)
+  DynamicAnalyzer       -> orchestrator; watchdog handler + pattern scoring
+  DynamicEngine         -> top-level entry point; exposes get_status()
 
 IRP simulation note:
   On Windows the paper uses a kernel minifilter driver (§IV-B) to intercept
@@ -131,7 +131,7 @@ SUSPICION_THRESHOLD = 5.0   # score to flag a process
 #     operation indicates suspicious behavior"                                #
 # ═══════════════════════════════════════════════════════════════════════════ #
 
-# Maps extension → list of valid magic byte prefixes (bytes)
+# Maps extension -> list of valid magic byte prefixes (bytes)
 MAGIC_BYTES: Dict[str, List[bytes]] = {
     ".jpg":  [b"\xff\xd8\xff"],
     ".jpeg": [b"\xff\xd8\xff"],
@@ -414,7 +414,7 @@ class FingerprintChecker:
             if header[:len(magic)] == magic:
                 return False, "ok"
 
-        # No magic matched → mismatch
+        # No magic matched -> mismatch
         actual_hex = header[:8].hex()
         return True, f"ext={ext} expected_magic≠actual({actual_hex})"
 
@@ -431,11 +431,11 @@ class FileOperationTracker:
     The Dynamic Analysis Engine calls these methods from its watchdog handler.
 
     IRP mapping:
-      IRP_MJ_DIRECTORY_CONTROL  →  record_dir_query()
-      IRP_MJ_READ               →  record_read()
-      IRP_MJ_WRITE              →  record_write()
-      IRP_MJ_SET_INFORMATION (rename) → record_rename()
-      IRP_MJ_SET_INFORMATION (delete) → record_delete()
+      IRP_MJ_DIRECTORY_CONTROL  ->  record_dir_query()
+      IRP_MJ_READ               ->  record_read()
+      IRP_MJ_WRITE              ->  record_write()
+      IRP_MJ_SET_INFORMATION (rename) -> record_rename()
+      IRP_MJ_SET_INFORMATION (delete) -> record_delete()
     """
 
     def __init__(self):
@@ -509,10 +509,10 @@ class PatternScorer:
     ransomware behavioral thresholds and computes a composite suspicion score.
 
     Behavioral patterns (paper Fig. 4):
-      • High DINFO + high READ → ransomware enumerating and reading files
-      • High WRITE + high ENTROPY → encryption in progress
-      • High RENAME → post-encryption renaming to .encrypted / .locky etc.
-      • FINGERPRINT mismatch → content overwritten with ciphertext
+      • High DINFO + high READ -> ransomware enumerating and reading files
+      • High WRITE + high ENTROPY -> encryption in progress
+      • High RENAME -> post-encryption renaming to .encrypted / .locky etc.
+      • FINGERPRINT mismatch -> content overwritten with ciphertext
     """
 
     @staticmethod
@@ -533,25 +533,25 @@ class PatternScorer:
                 triggered.append(feature)
 
         # Compound bonuses – paper's behavioral pattern combinations
-        # "High read + high write → encryption pattern"
+        # "High read + high write -> encryption pattern"
         if (totals.get("read_count", 0)  >= THRESHOLDS["read_count"] and
                 totals.get("write_count", 0) >= THRESHOLDS["write_count"]):
             score += 1.5
             if "compound:read+write" not in triggered:
                 triggered.append("compound:read+write_encryption_pattern")
 
-        # "High entropy + writes → strong indicator"
+        # "High entropy + writes -> strong indicator"
         if (totals.get("entropy_spikes", 0) >= THRESHOLDS["entropy_spikes"] and
                 totals.get("write_count", 0)  >= THRESHOLDS["write_count"]):
             score += 2.0
             triggered.append("compound:entropy+write_encryption_pattern")
 
-        # "High rename burst → ransomware pattern"
+        # "High rename burst -> ransomware pattern"
         if totals.get("rename_count", 0) >= THRESHOLDS["rename_count"] * 2:
             score += 1.0
             triggered.append("compound:rename_burst")
 
-        # "Fingerprint mismatch → very strong indicator"
+        # "Fingerprint mismatch -> very strong indicator"
         if totals.get("fingerprint_mismatch", 0) >= 1:
             score += 2.0
             triggered.append("compound:fingerprint_mismatch_critical")
@@ -651,7 +651,7 @@ class DynamicEventHandler(FileSystemEventHandler):
 
         pid = self._pid_hint()
 
-        # §III-D-3d: detect data → non-data extension rename
+        # §III-D-3d: detect data -> non-data extension rename
         src_ext = Path(src).suffix.lower()
         dst_ext = Path(dst).suffix.lower()
 
@@ -667,13 +667,13 @@ class DynamicEventHandler(FileSystemEventHandler):
 
         if is_data_to_ransom:
             self.logger.warning(
-                f"[DYN] RENAME_DATA→RANSOM  pid={pid}  "
-                f"{src_ext}→{dst_ext}  {src} → {dst}"
+                f"[DYN] RENAME_DATA->RANSOM  pid={pid}  "
+                f"{src_ext}->{dst_ext}  {src} -> {dst}"
             )
         elif is_data_to_unknown:
             self.logger.warning(
-                f"[DYN] RENAME_DATA→UNKNOWN  pid={pid}  "
-                f"{src_ext}→{dst_ext}  {src}"
+                f"[DYN] RENAME_DATA->UNKNOWN  pid={pid}  "
+                f"{src_ext}->{dst_ext}  {src}"
             )
 
         self.tracker.record_rename(pid, src, dst)
@@ -817,8 +817,8 @@ class DynamicAnalyzer:
             dst_ext = Path(dst_path).suffix.lower()
             if dst_ext in RANSOMWARE_EXTENSIONS:
                 self.logger.warning(
-                    f"[DYN/inject] RENAME_DATA→RANSOM  pid={pid}  "
-                    f"{src_ext}→{dst_ext}"
+                    f"[DYN/inject] RENAME_DATA->RANSOM  pid={pid}  "
+                    f"{src_ext}->{dst_ext}"
                 )
 
         elif irp_type == "delete":
@@ -1027,7 +1027,7 @@ def run_demo():
     engine.inject_irp("write", sim_pid, path=str(jpg_file))
     time.sleep(0.2)
 
-    print("[Demo] Step 5/7 – Bulk rename: .docx → .encrypted")
+    print("[Demo] Step 5/7 – Bulk rename: .docx -> .encrypted")
     for f in test_files:
         dst = f.with_suffix(".encrypted")
         engine.inject_irp("rename", sim_pid,
