@@ -289,3 +289,267 @@
 2026-04-12 19:28:27,558 [RANSOMWALL] INFO  [TrapLayer] Shutting down…
 2026-04-12 19:28:40,969 [RANSOMWALL] INFO  [HoneyFileManager] Cleanup complete.
 2026-04-12 19:28:40,970 [RANSOMWALL] INFO  [TrapLayer] Shutdown complete.
+2026-04-12 19:51:30,657 [RANSOMWALL] INFO  [INIT] Initializing Dynamic Analysis Engine ...
+2026-04-12 19:51:30,658 [RANSOMWALL] INFO  [INIT] Initializing File Backup Layer ...
+2026-04-12 19:51:30,659 [RANSOMWALL] INFO  [BackupLayer] Initialized. Backup dir: C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\backup
+2026-04-12 19:51:30,659 [RANSOMWALL] INFO  [INIT] Initializing Machine Learning Engine ...
+2026-04-12 19:51:30,660 [RANSOMWALL] INFO  [MLModel] Initialized with RuleBasedClassifier
+2026-04-12 19:51:30,660 [RANSOMWALL] INFO  [INIT] All layers initialized. System ready.
+2026-04-12 19:51:30,661 [RANSOMWALL] INFO  [SYSTEM] Starting monitoring layers ...
+2026-04-12 19:51:30,966 [RANSOMWALL] INFO  [HoneyFileManager] Deployed 28 honey files across 1 directories.
+2026-04-12 19:51:30,969 [RANSOMWALL] INFO  [TrapLayer] Watchdog monitoring 1 dirs.
+2026-04-12 19:51:30,978 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:30.978541+00:00", "pid": 1812, "operation": "crypto_api_usage", "target": "firefox.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:51:30,978 [RANSOMWALL] INFO  [BehaviorDetector] Started polling loop.
+2026-04-12 19:51:31,292 [RANSOMWALL] INFO  [TrapLayer] All subsystems active. Monitoring…
+2026-04-12 19:51:31,293 [RANSOMWALL] INFO  [DynamicAnalyzer] Watching 1 directories.
+2026-04-12 19:51:31,294 [RANSOMWALL] INFO  [DynamicEngine] Started.
+2026-04-12 19:51:31,295 [RANSOMWALL] INFO  [INFO] Monitoring started. Press Ctrl+C to stop.
+
+2026-04-12 19:51:31,414 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:31.414636+00:00", "pid": 2148, "operation": "crypto_api_usage", "target": "firefox.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:51:31,558 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:31.558335+00:00", "pid": 2216, "operation": "crypto_api_usage", "target": "code.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:51:32,192 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:32.192413+00:00", "pid": 3056, "operation": "crypto_api_usage", "target": "omencommandcenterbackground.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:51:32,643 [RANSOMWALL] INFO  [DEMO] Injecting simulated ransomware events for PID=1337
+2026-04-12 19:51:32,644 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:32.644802+00:00", "pid": 1337, "operation": "honey_file_write", "target": "decoy_report.docx", "feature": "honey_file_write", "score": 2.0, "detail": "injected-test"}
+2026-04-12 19:51:32,659 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:32.659978+00:00", "pid": 4064, "operation": "crypto_api_usage", "target": "firefox.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:51:32,802 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:32.802970+00:00", "pid": 1337, "operation": "honey_file_rename", "target": "decoy_report.docx", "feature": "honey_file_rename", "score": 4.0, "detail": "injected-test"}
+2026-04-12 19:51:32,925 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:32.925500+00:00", "pid": 4928, "operation": "crypto_api_usage", "target": "sihost.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:51:33,134 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:33.134630+00:00", "pid": 1337, "operation": "crypto_api_usage", "target": "rsaenh.dll,bcrypt.dll,crypt32.dll", "feature": "crypto_api_usage", "score": 5.5, "detail": "injected-test"}
+2026-04-12 19:51:33,280 [RANSOMWALL] INFO  [FeatureCollector] PID 1337 (unknown) FLAGGED SUSPICIOUS  score=8.5  features=['honey_file_write', 'honey_file_rename', 'crypto_api_usage', 'safe_mode_disabled']
+2026-04-12 19:51:33,280 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:33.280193+00:00", "pid": 1337, "operation": "safe_mode_disabled", "target": "bcdedit.exe", "feature": "safe_mode_disabled", "score": 8.5, "detail": "injected-test"}
+2026-04-12 19:51:33,536 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:33.536881+00:00", "pid": 1337, "operation": "vss_deletion", "target": "vssadmin.exe delete shadows /all", "feature": "vss_deletion", "score": 11.5, "detail": "injected-test"}
+2026-04-12 19:51:33,551 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:33.551010+00:00", "pid": 6704, "operation": "crypto_api_usage", "target": "firefox.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll"}
+2026-04-12 19:51:33,798 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:33.798175+00:00", "pid": 1337, "operation": "entropy_spike", "target": "important_data.xlsx", "feature": "entropy_spike", "score": 13.0, "detail": "injected-test"}
+2026-04-12 19:51:33,798 [RANSOMWALL] WARNING  
+------------------------------------------------------------
+[ALERT] Suspicious process detected!
+        PID   : 1337
+        Name  : unknown
+        Score : 11.50  (threshold=6.0)
+------------------------------------------------------------
+2026-04-12 19:51:33,799 [RANSOMWALL] DEBUG  [ML] PID=1337  bucket_verdict=benign  score=11.50
+2026-04-12 19:51:34,008 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:34.008160+00:00", "pid": 1337, "operation": "registry_persistence", "target": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run", "feature": "registry_persistence", "score": 14.0, "detail": "injected-test"}
+2026-04-12 19:51:34,114 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:34.114140+00:00", "pid": 1337, "operation": "honey_file_delete", "target": "decoy_photo.jpg", "feature": "honey_file_delete", "score": 16.0, "detail": "injected-test"}
+2026-04-12 19:51:34,120 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:34.120117+00:00", "pid": 7200, "operation": "crypto_api_usage", "target": "uihost.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:51:34,298 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:34.298219+00:00", "pid": 1337, "operation": "honey_dir_modified", "target": "C:\\Users\\victim\\Documents", "feature": "honey_dir_modified", "score": 17.5, "detail": "injected-test"}
+2026-04-12 19:51:34,885 [RANSOMWALL] DEBUG  [ML] PID=1337  bucket_verdict=benign  score=17.50
+2026-04-12 19:51:34,894 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:34.894690+00:00", "pid": 8984, "operation": "crypto_api_usage", "target": "backgroundtaskhost.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:51:35,077 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:35.077488+00:00", "pid": 9072, "operation": "crypto_api_usage", "target": "onedrive.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:51:35,563 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:35.563096+00:00", "pid": 11288, "operation": "crypto_api_usage", "target": "code.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:51:35,904 [RANSOMWALL] WARNING  [MLModel] RANSOMWARE CONSENSUS  PID=1337  window=[1, 1, 1]  scores=[32.17, 40.64, 40.64]
+2026-04-12 19:51:35,904 [RANSOMWALL] DEBUG  [ML] PID=1337  bucket_verdict=ransomware  score=17.50
+2026-04-12 19:51:35,905 [RANSOMWALL] WARNING  
+============================================================
+[ML]     RANSOMWARE CONFIRMED  PID=1337
+============================================================
+2026-04-12 19:51:35,905 [RANSOMWALL] DEBUG  [ProcessManager] kill PID=1337: process no longer exists (pid=1337)
+2026-04-12 19:51:35,907 [RANSOMWALL] INFO  [BackupLayer] No backed-up files found for PID 1337.
+2026-04-12 19:51:35,907 [RANSOMWALL] WARNING  [ACTION] Restored 0 file(s) for PID=1337
+2026-04-12 19:51:35,931 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:35.931668+00:00", "pid": 11352, "operation": "crypto_api_usage", "target": "hpsystemeventutilityhost.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:51:36,098 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:36.098989+00:00", "pid": 12156, "operation": "crypto_api_usage", "target": "hpaudioswitch.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:51:36,565 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:36.565704+00:00", "pid": 14560, "operation": "crypto_api_usage", "target": "searchhost.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:51:37,523 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:37.523422+00:00", "pid": 17460, "operation": "crypto_api_usage", "target": "firefox.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:51:37,663 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:37.663616+00:00", "pid": 17820, "operation": "crypto_api_usage", "target": "firefox.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:51:37,994 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:37.994055+00:00", "pid": 18708, "operation": "crypto_api_usage", "target": "hp.hpx.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:51:38,953 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:38.953012+00:00", "pid": 20632, "operation": "crypto_api_usage", "target": "browser_assistant.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:51:39,106 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:39.106921+00:00", "pid": 20636, "operation": "crypto_api_usage", "target": "code.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:51:39,243 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:39.243219+00:00", "pid": 20932, "operation": "crypto_api_usage", "target": "mcuicnt.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:51:39,608 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:39.608673+00:00", "pid": 22772, "operation": "crypto_api_usage", "target": "telegram.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:51:39,912 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:39.912734+00:00", "pid": 22812, "operation": "crypto_api_usage", "target": "whatsapp.root.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:51:40,329 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:40.329824+00:00", "pid": 22976, "operation": "crypto_api_usage", "target": "widgets.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:51:40,506 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:40.506357+00:00", "pid": 23160, "operation": "crypto_api_usage", "target": "unsecapp.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:51:40,787 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:40.787980+00:00", "pid": 24024, "operation": "crypto_api_usage", "target": "msedgewebview2.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:51:41,501 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:41.501651+00:00", "pid": 24300, "operation": "crypto_api_usage", "target": "modulecoreservice.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:51:41,735 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:41.735755+00:00", "pid": 24568, "operation": "crypto_api_usage", "target": "startmenuexperiencehost.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:51:42,003 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:42.003756+00:00", "pid": 25472, "operation": "crypto_api_usage", "target": "textinputhost.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:51:42,237 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:42.237082+00:00", "pid": 25784, "operation": "crypto_api_usage", "target": "crashhelper.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:51:42,398 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:42.398870+00:00", "pid": 25928, "operation": "crypto_api_usage", "target": "lockapp.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:51:43,048 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:43.048225+00:00", "pid": 28112, "operation": "crypto_api_usage", "target": "explorer.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:51:44,271 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:44.271074+00:00", "pid": 29448, "operation": "crypto_api_usage", "target": "firefox.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:51:44,565 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:44.563771+00:00", "pid": 30404, "operation": "crypto_api_usage", "target": "msedgewebview2.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:51:45,141 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:45.141694+00:00", "pid": 30932, "operation": "crypto_api_usage", "target": "filecoauth.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:51:45,237 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:45.236008+00:00", "pid": 31448, "operation": "crypto_api_usage", "target": "firefox.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:51:45,358 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:45.358720+00:00", "pid": 31960, "operation": "crypto_api_usage", "target": "desktopextension.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:51:45,605 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:45.605867+00:00", "pid": 33188, "operation": "crypto_api_usage", "target": "firefox.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:51:46,207 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:46.207747+00:00", "pid": 35352, "operation": "crypto_api_usage", "target": "slack.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:51:46,608 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:46.608760+00:00", "pid": 35944, "operation": "crypto_api_usage", "target": "code.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:51:46,873 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:46.873146+00:00", "pid": 36036, "operation": "crypto_api_usage", "target": "hpsystemeventutilitybackground.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:51:47,366 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:47.366256+00:00", "pid": 36960, "operation": "crypto_api_usage", "target": "phoneexperiencehost.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:51:47,943 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:47.943686+00:00", "pid": 38192, "operation": "crypto_api_usage", "target": "firefox.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:51:48,060 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:48.060052+00:00", "pid": 38256, "operation": "crypto_api_usage", "target": "hpmedianetwork.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:51:48,278 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:48.278816+00:00", "pid": 38276, "operation": "crypto_api_usage", "target": "svchost.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,cryptbase.dll,cryptsp.dll"}
+2026-04-12 19:51:48,513 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:48.513736+00:00", "pid": 38824, "operation": "crypto_api_usage", "target": "svchost.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:51:48,648 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:48.648015+00:00", "pid": 39028, "operation": "crypto_api_usage", "target": "widgetservice.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:51:48,806 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:48.805827+00:00", "pid": 39148, "operation": "crypto_api_usage", "target": "msedge.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:51:49,481 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:49.481664+00:00", "pid": 39308, "operation": "crypto_api_usage", "target": "firefox.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:51:49,670 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:49.670056+00:00", "pid": 40056, "operation": "crypto_api_usage", "target": "backgroundtaskhost.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:51:49,968 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:49.968499+00:00", "pid": 40188, "operation": "crypto_api_usage", "target": "python.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:51:50,982 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:50.982904+00:00", "pid": 41684, "operation": "crypto_api_usage", "target": "slack.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:51:51,315 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:51.315289+00:00", "pid": 41864, "operation": "crypto_api_usage", "target": "firefox.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:51:51,486 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:51.485635+00:00", "pid": 42280, "operation": "crypto_api_usage", "target": "appactions.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:51:51,908 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:51.908349+00:00", "pid": 42880, "operation": "crypto_api_usage", "target": "msedgewebview2.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:51:52,222 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:52.222969+00:00", "pid": 42948, "operation": "crypto_api_usage", "target": "firefox.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:51:52,683 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:52.683588+00:00", "pid": 42992, "operation": "crypto_api_usage", "target": "rtkauduservice64.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:51:54,108 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:54.108613+00:00", "pid": 44572, "operation": "crypto_api_usage", "target": "firefox.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:51:54,772 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:54.772122+00:00", "pid": 46156, "operation": "crypto_api_usage", "target": "igcctray.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:51:55,098 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:55.097969+00:00", "pid": 46640, "operation": "crypto_api_usage", "target": "runtimebroker.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:51:55,339 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:55.339365+00:00", "pid": 47172, "operation": "crypto_api_usage", "target": "firefox.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:51:55,468 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:55.468965+00:00", "pid": 47188, "operation": "crypto_api_usage", "target": "svchost.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:51:55,649 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:21:55.649047+00:00", "pid": 47264, "operation": "crypto_api_usage", "target": "m365copilot.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:51:56,346 [RANSOMWALL] INFO  [DEMO] Simulation events injected for PID=1337.
+2026-04-12 19:52:03,144 [RANSOMWALL] INFO  [SYSTEM] Shutting down ...
+2026-04-12 19:52:03,740 [RANSOMWALL] INFO  [TrapLayer] Shutting down…
+2026-04-12 19:52:11,922 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.py
+2026-04-12 19:52:11,923 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__dir\__rw_honey__nested.txt
+2026-04-12 19:52:12,021 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.pptx
+2026-04-12 19:52:12,289 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.jpeg
+2026-04-12 19:52:12,290 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.mp4
+2026-04-12 19:52:12,290 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.avi
+2026-04-12 19:52:12,292 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.ppt
+2026-04-12 19:52:12,293 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.sql
+2026-04-12 19:52:12,294 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.xml
+2026-04-12 19:52:12,294 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.txt
+2026-04-12 19:52:12,294 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.rar
+2026-04-12 19:52:12,295 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.xls
+2026-04-12 19:52:12,295 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.bmp
+2026-04-12 19:52:12,491 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.csv
+2026-04-12 19:52:12,885 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.mov
+2026-04-12 19:52:12,886 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.png
+2026-04-12 19:52:12,887 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.pdf
+2026-04-12 19:52:12,888 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__dir\__rw_honey__nested.docx
+2026-04-12 19:52:12,888 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__dir\__rw_honey__nested.pdf
+2026-04-12 19:52:12,888 [RANSOMWALL] INFO  [HoneyFileManager] Cleanup complete.
+2026-04-12 19:52:12,889 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.docx
+2026-04-12 19:52:12,889 [RANSOMWALL] INFO  [TrapLayer] Shutdown complete.
+2026-04-12 19:52:12,889 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.jpg
+2026-04-12 19:52:13,910 [RANSOMWALL] INFO  [DynamicEngine] Stopped.
+2026-04-12 19:52:13,910 [RANSOMWALL] INFO  [SYSTEM] RansomWall stopped.
+2026-04-12 19:56:45,095 [RANSOMWALL] INFO  [INIT] Initializing Dynamic Analysis Engine ...
+2026-04-12 19:56:45,097 [RANSOMWALL] INFO  [INIT] Initializing File Backup Layer ...
+2026-04-12 19:56:45,097 [RANSOMWALL] INFO  [BackupLayer] Initialized. Backup dir: C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\backup
+2026-04-12 19:56:45,097 [RANSOMWALL] INFO  [INIT] Initializing Machine Learning Engine ...
+2026-04-12 19:56:45,099 [RANSOMWALL] INFO  [MLModel] Initialized with RuleBasedClassifier
+2026-04-12 19:56:45,099 [RANSOMWALL] INFO  [INIT] All layers initialized. System ready.
+2026-04-12 19:56:45,100 [RANSOMWALL] INFO  [SYSTEM] Starting monitoring layers ...
+2026-04-12 19:56:45,472 [RANSOMWALL] INFO  [HoneyFileManager] Deployed 28 honey files across 1 directories.
+2026-04-12 19:56:45,477 [RANSOMWALL] INFO  [TrapLayer] Watchdog monitoring 1 dirs.
+2026-04-12 19:56:45,494 [RANSOMWALL] INFO  [BehaviorDetector] Started polling loop.
+2026-04-12 19:56:45,496 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:45.496465+00:00", "pid": 1812, "operation": "crypto_api_usage", "target": "firefox.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:56:45,640 [RANSOMWALL] INFO  [TrapLayer] All subsystems active. Monitoring…
+2026-04-12 19:56:45,804 [RANSOMWALL] INFO  [DynamicAnalyzer] Watching 1 directories.
+2026-04-12 19:56:45,805 [RANSOMWALL] INFO  [DynamicEngine] Started.
+2026-04-12 19:56:45,805 [RANSOMWALL] INFO  [INFO] Monitoring started. Press Ctrl+C to stop.
+
+2026-04-12 19:56:45,824 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:45.824445+00:00", "pid": 2108, "operation": "crypto_api_usage", "target": "python.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:56:46,463 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:46.463902+00:00", "pid": 2148, "operation": "crypto_api_usage", "target": "firefox.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:56:46,611 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:46.611418+00:00", "pid": 2216, "operation": "crypto_api_usage", "target": "code.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:56:46,946 [RANSOMWALL] INFO  [DEMO] Injecting simulated ransomware events for PID=1337
+2026-04-12 19:56:46,947 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:46.947172+00:00", "pid": 1337, "operation": "honey_file_write", "target": "decoy_report.docx", "feature": "honey_file_write", "score": 2.0, "detail": "injected-test"}
+2026-04-12 19:56:47,182 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:47.182492+00:00", "pid": 1337, "operation": "honey_file_rename", "target": "decoy_report.docx", "feature": "honey_file_rename", "score": 4.0, "detail": "injected-test"}
+2026-04-12 19:56:47,334 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:47.334574+00:00", "pid": 1337, "operation": "crypto_api_usage", "target": "rsaenh.dll,bcrypt.dll,crypt32.dll", "feature": "crypto_api_usage", "score": 5.5, "detail": "injected-test"}
+2026-04-12 19:56:47,447 [RANSOMWALL] INFO  [FeatureCollector] PID 1337 (unknown) FLAGGED SUSPICIOUS  score=8.5  features=['honey_file_write', 'honey_file_rename', 'crypto_api_usage', 'safe_mode_disabled']
+2026-04-12 19:56:47,448 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:47.448962+00:00", "pid": 1337, "operation": "safe_mode_disabled", "target": "bcdedit.exe", "feature": "safe_mode_disabled", "score": 8.5, "detail": "injected-test"}
+2026-04-12 19:56:47,485 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:47.485450+00:00", "pid": 3056, "operation": "crypto_api_usage", "target": "omencommandcenterbackground.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:56:47,949 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:47.948987+00:00", "pid": 1337, "operation": "vss_deletion", "target": "vssadmin.exe delete shadows /all", "feature": "vss_deletion", "score": 11.5, "detail": "injected-test"}
+2026-04-12 19:56:47,949 [RANSOMWALL] WARNING  
+------------------------------------------------------------
+[ALERT] Suspicious process detected!
+        PID   : 1337
+        Name  : unknown
+        Score : 11.50  (threshold=6.0)
+------------------------------------------------------------
+2026-04-12 19:56:47,961 [RANSOMWALL] DEBUG  [ML] PID=1337  bucket_verdict=benign  score=11.50
+2026-04-12 19:56:48,104 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:48.104583+00:00", "pid": 1337, "operation": "entropy_spike", "target": "important_data.xlsx", "feature": "entropy_spike", "score": 13.0, "detail": "injected-test"}
+2026-04-12 19:56:48,112 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:48.112576+00:00", "pid": 4064, "operation": "crypto_api_usage", "target": "firefox.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:56:48,256 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:48.256331+00:00", "pid": 1337, "operation": "registry_persistence", "target": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run", "feature": "registry_persistence", "score": 14.0, "detail": "injected-test"}
+2026-04-12 19:56:48,360 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:48.360569+00:00", "pid": 1337, "operation": "honey_file_delete", "target": "decoy_photo.jpg", "feature": "honey_file_delete", "score": 16.0, "detail": "injected-test"}
+2026-04-12 19:56:48,368 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:48.368583+00:00", "pid": 4928, "operation": "crypto_api_usage", "target": "sihost.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:56:48,577 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:48.577322+00:00", "pid": 1337, "operation": "honey_dir_modified", "target": "C:\\Users\\victim\\Documents", "feature": "honey_dir_modified", "score": 17.5, "detail": "injected-test"}
+2026-04-12 19:56:48,940 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:48.940331+00:00", "pid": 6704, "operation": "crypto_api_usage", "target": "firefox.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll"}
+2026-04-12 19:56:49,180 [RANSOMWALL] DEBUG  [ML] PID=1337  bucket_verdict=benign  score=17.50
+2026-04-12 19:56:49,453 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:49.453396+00:00", "pid": 7200, "operation": "crypto_api_usage", "target": "uihost.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:56:50,069 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:50.069189+00:00", "pid": 8984, "operation": "crypto_api_usage", "target": "backgroundtaskhost.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:56:50,205 [RANSOMWALL] WARNING  [MLModel] RANSOMWARE CONSENSUS  PID=1337  window=[1, 1, 1]  scores=[28.78, 40.64, 40.64]
+2026-04-12 19:56:50,205 [RANSOMWALL] DEBUG  [ML] PID=1337  bucket_verdict=ransomware  score=17.50
+2026-04-12 19:56:50,206 [RANSOMWALL] WARNING  
+============================================================
+[ML]     RANSOMWARE CONFIRMED  PID=1337
+============================================================
+2026-04-12 19:56:50,221 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:50.221298+00:00", "pid": 9072, "operation": "crypto_api_usage", "target": "onedrive.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:56:50,222 [RANSOMWALL] DEBUG  [ProcessManager] kill PID=1337: process no longer exists (pid=1337)
+2026-04-12 19:56:50,434 [RANSOMWALL] INFO  [BackupLayer] No backed-up files found for PID 1337.
+2026-04-12 19:56:50,434 [RANSOMWALL] WARNING  [ACTION] Restored 0 file(s) for PID=1337
+2026-04-12 19:56:50,649 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:50.649040+00:00", "pid": 11288, "operation": "crypto_api_usage", "target": "code.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:56:51,066 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:51.066726+00:00", "pid": 11352, "operation": "crypto_api_usage", "target": "hpsystemeventutilityhost.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:56:51,206 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:51.206656+00:00", "pid": 12156, "operation": "crypto_api_usage", "target": "hpaudioswitch.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:56:51,598 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:51.598537+00:00", "pid": 14560, "operation": "crypto_api_usage", "target": "searchhost.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:56:52,599 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:52.599370+00:00", "pid": 17460, "operation": "crypto_api_usage", "target": "firefox.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:56:52,836 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:52.836934+00:00", "pid": 17820, "operation": "crypto_api_usage", "target": "firefox.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:56:53,126 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:53.126963+00:00", "pid": 18708, "operation": "crypto_api_usage", "target": "hp.hpx.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:56:54,000 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:54.000113+00:00", "pid": 20632, "operation": "crypto_api_usage", "target": "browser_assistant.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:56:54,143 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:54.143566+00:00", "pid": 20636, "operation": "crypto_api_usage", "target": "code.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:56:54,281 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:54.281336+00:00", "pid": 20932, "operation": "crypto_api_usage", "target": "mcuicnt.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:56:54,589 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:54.589423+00:00", "pid": 22772, "operation": "crypto_api_usage", "target": "telegram.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:56:54,988 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:54.988885+00:00", "pid": 22812, "operation": "crypto_api_usage", "target": "whatsapp.root.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:56:55,374 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:55.374063+00:00", "pid": 22976, "operation": "crypto_api_usage", "target": "widgets.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:56:55,524 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:55.524771+00:00", "pid": 23160, "operation": "crypto_api_usage", "target": "unsecapp.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:56:55,795 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:55.795157+00:00", "pid": 24024, "operation": "crypto_api_usage", "target": "msedgewebview2.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:56:56,344 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:56.344224+00:00", "pid": 24300, "operation": "crypto_api_usage", "target": "modulecoreservice.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:56:56,570 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:56.570235+00:00", "pid": 24568, "operation": "crypto_api_usage", "target": "startmenuexperiencehost.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:56:56,867 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:56.866663+00:00", "pid": 25472, "operation": "crypto_api_usage", "target": "textinputhost.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:56:57,081 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:57.081994+00:00", "pid": 25784, "operation": "crypto_api_usage", "target": "crashhelper.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:56:57,222 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:57.222415+00:00", "pid": 25928, "operation": "crypto_api_usage", "target": "lockapp.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:56:57,991 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:57.991994+00:00", "pid": 28112, "operation": "crypto_api_usage", "target": "explorer.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:56:59,096 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:59.096261+00:00", "pid": 29448, "operation": "crypto_api_usage", "target": "firefox.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:56:59,393 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:59.393172+00:00", "pid": 30404, "operation": "crypto_api_usage", "target": "msedgewebview2.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:56:59,830 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:59.830878+00:00", "pid": 30932, "operation": "crypto_api_usage", "target": "filecoauth.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:56:59,936 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:26:59.936155+00:00", "pid": 31448, "operation": "crypto_api_usage", "target": "firefox.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:57:00,102 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:27:00.102586+00:00", "pid": 31960, "operation": "crypto_api_usage", "target": "desktopextension.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:57:00,381 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:27:00.381157+00:00", "pid": 33188, "operation": "crypto_api_usage", "target": "firefox.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:57:00,867 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:27:00.867266+00:00", "pid": 35352, "operation": "crypto_api_usage", "target": "slack.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:57:01,210 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:27:01.210406+00:00", "pid": 35944, "operation": "crypto_api_usage", "target": "code.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:57:01,520 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:27:01.520487+00:00", "pid": 36036, "operation": "crypto_api_usage", "target": "hpsystemeventutilitybackground.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:57:02,013 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:27:02.012538+00:00", "pid": 36960, "operation": "crypto_api_usage", "target": "phoneexperiencehost.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:57:02,496 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:27:02.496037+00:00", "pid": 38192, "operation": "crypto_api_usage", "target": "firefox.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:57:02,609 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:27:02.609015+00:00", "pid": 38256, "operation": "crypto_api_usage", "target": "hpmedianetwork.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:57:02,883 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:27:02.883305+00:00", "pid": 38276, "operation": "crypto_api_usage", "target": "svchost.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,cryptbase.dll,cryptsp.dll"}
+2026-04-12 19:57:03,155 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:27:03.155746+00:00", "pid": 38824, "operation": "crypto_api_usage", "target": "svchost.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:57:03,288 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:27:03.288331+00:00", "pid": 39028, "operation": "crypto_api_usage", "target": "widgetservice.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:57:03,440 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:27:03.439104+00:00", "pid": 39148, "operation": "crypto_api_usage", "target": "msedge.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:57:04,391 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:27:04.391632+00:00", "pid": 39308, "operation": "crypto_api_usage", "target": "firefox.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:57:04,691 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:27:04.691399+00:00", "pid": 40056, "operation": "crypto_api_usage", "target": "backgroundtaskhost.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:57:05,470 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:27:05.470974+00:00", "pid": 41684, "operation": "crypto_api_usage", "target": "slack.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:57:06,095 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:27:06.095451+00:00", "pid": 41864, "operation": "crypto_api_usage", "target": "firefox.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:57:06,445 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:27:06.445243+00:00", "pid": 42280, "operation": "crypto_api_usage", "target": "appactions.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:57:07,586 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:27:07.586995+00:00", "pid": 42880, "operation": "crypto_api_usage", "target": "msedgewebview2.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:57:08,604 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:27:08.604252+00:00", "pid": 42948, "operation": "crypto_api_usage", "target": "firefox.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:57:09,754 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:27:09.754833+00:00", "pid": 42992, "operation": "crypto_api_usage", "target": "rtkauduservice64.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:57:12,721 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:27:12.721334+00:00", "pid": 44572, "operation": "crypto_api_usage", "target": "firefox.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:57:14,363 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:27:14.363648+00:00", "pid": 46156, "operation": "crypto_api_usage", "target": "igcctray.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:57:15,089 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:27:15.089520+00:00", "pid": 46640, "operation": "crypto_api_usage", "target": "runtimebroker.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:57:15,652 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:27:15.652085+00:00", "pid": 47172, "operation": "crypto_api_usage", "target": "firefox.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll"}
+2026-04-12 19:57:15,842 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:27:15.842397+00:00", "pid": 47188, "operation": "crypto_api_usage", "target": "svchost.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:57:16,210 [RANSOMWALL] WARNING  {"ts": "2026-04-12T14:27:16.210041+00:00", "pid": 47264, "operation": "crypto_api_usage", "target": "m365copilot.exe", "feature": "crypto_api_usage", "score": 1.5, "detail": "bcrypt.dll,crypt32.dll,cryptbase.dll,cryptsp.dll,rsaenh.dll"}
+2026-04-12 19:57:17,470 [RANSOMWALL] INFO  [DEMO] Simulation events injected for PID=1337.
+2026-04-12 19:57:24,894 [RANSOMWALL] INFO  [SYSTEM] Shutting down ...
+2026-04-12 19:57:26,141 [RANSOMWALL] INFO  [TrapLayer] Shutting down…
+2026-04-12 19:57:33,030 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__file.jpg
+2026-04-12 19:57:33,031 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__file.doc
+2026-04-12 19:57:33,033 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__file.ppt
+2026-04-12 19:57:33,033 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__dir\__rw_honey__nested.pdf
+2026-04-12 19:57:33,034 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__file.xlsx
+2026-04-12 19:57:33,034 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__file.txt
+2026-04-12 19:57:33,034 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__file.mov
+2026-04-12 19:57:33,035 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__file.png
+2026-04-12 19:57:33,035 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__dir\__rw_honey__nested.docx
+2026-04-12 19:57:33,035 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__file.db
+2026-04-12 19:57:33,036 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__file.csv
+2026-04-12 19:57:33,036 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__dir\__rw_honey__nested.txt
+2026-04-12 19:57:33,037 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__file.pptx
+2026-04-12 19:57:33,038 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__dir\__rw_honey__nested.jpg
+2026-04-12 19:57:33,039 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__file.jpeg
+2026-04-12 19:57:33,041 [RANSOMWALL] INFO  [HoneyFileManager] Cleanup complete.
+2026-04-12 19:57:33,041 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__file.xml
+2026-04-12 19:57:33,042 [RANSOMWALL] INFO  [TrapLayer] Shutdown complete.
+2026-04-12 19:57:33,042 [RANSOMWALL] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__file.sql
+2026-04-12 19:57:33,692 [RANSOMWALL] INFO  [DynamicEngine] Stopped.
+2026-04-12 19:57:33,693 [RANSOMWALL] INFO  [SYSTEM] RansomWall stopped.

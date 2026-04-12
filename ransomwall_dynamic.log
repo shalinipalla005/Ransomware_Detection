@@ -1,0 +1,44 @@
+2026-04-12 19:51:31,293 [DYNAMIC] INFO  [DynamicAnalyzer] Watching 1 directories.
+2026-04-12 19:51:31,294 [DYNAMIC] INFO  [DynamicEngine] Started.
+2026-04-12 19:52:11,922 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.py
+2026-04-12 19:52:11,923 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__dir\__rw_honey__nested.txt
+2026-04-12 19:52:12,021 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.pptx
+2026-04-12 19:52:12,289 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.jpeg
+2026-04-12 19:52:12,290 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.mp4
+2026-04-12 19:52:12,290 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.avi
+2026-04-12 19:52:12,292 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.ppt
+2026-04-12 19:52:12,293 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.sql
+2026-04-12 19:52:12,294 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.xml
+2026-04-12 19:52:12,294 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.txt
+2026-04-12 19:52:12,294 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.rar
+2026-04-12 19:52:12,295 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.xls
+2026-04-12 19:52:12,295 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.bmp
+2026-04-12 19:52:12,491 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.csv
+2026-04-12 19:52:12,885 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.mov
+2026-04-12 19:52:12,886 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.png
+2026-04-12 19:52:12,887 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.pdf
+2026-04-12 19:52:12,888 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__dir\__rw_honey__nested.docx
+2026-04-12 19:52:12,888 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__dir\__rw_honey__nested.pdf
+2026-04-12 19:52:12,889 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.docx
+2026-04-12 19:52:12,889 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5eyo6c5m\__rw_honey__file.jpg
+2026-04-12 19:52:13,910 [DYNAMIC] INFO  [DynamicEngine] Stopped.
+2026-04-12 19:56:45,804 [DYNAMIC] INFO  [DynamicAnalyzer] Watching 1 directories.
+2026-04-12 19:56:45,805 [DYNAMIC] INFO  [DynamicEngine] Started.
+2026-04-12 19:57:33,030 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__file.jpg
+2026-04-12 19:57:33,031 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__file.doc
+2026-04-12 19:57:33,033 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__file.ppt
+2026-04-12 19:57:33,033 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__dir\__rw_honey__nested.pdf
+2026-04-12 19:57:33,034 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__file.xlsx
+2026-04-12 19:57:33,034 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__file.txt
+2026-04-12 19:57:33,034 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__file.mov
+2026-04-12 19:57:33,035 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__file.png
+2026-04-12 19:57:33,035 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__dir\__rw_honey__nested.docx
+2026-04-12 19:57:33,035 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__file.db
+2026-04-12 19:57:33,036 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__file.csv
+2026-04-12 19:57:33,036 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__dir\__rw_honey__nested.txt
+2026-04-12 19:57:33,037 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__file.pptx
+2026-04-12 19:57:33,038 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__dir\__rw_honey__nested.jpg
+2026-04-12 19:57:33,039 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__file.jpeg
+2026-04-12 19:57:33,041 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__file.xml
+2026-04-12 19:57:33,042 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\palla\AppData\Local\Temp\rw_demo_5mh0tmdm\__rw_honey__file.sql
+2026-04-12 19:57:33,692 [DYNAMIC] INFO  [DynamicEngine] Stopped.

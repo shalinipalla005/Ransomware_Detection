@@ -1,25 +1,3 @@
-"""
-RansomWall: Static Analysis Engine
-=====================================
-Based on: "RansomWall: A Layered Defense System against Cryptographic
-Ransomware Attacks using Machine Learning" (COMSNETS 2018)
-IIT Delhi - Shaukat & Ribeiro
-
-Paper §III-D-1 (Static Analysis Engine Features):
-  a) PE Digital Signature Verification  → WinVerifyTrust API (Windows)
-  b) Presence of Packers/Cryptors       → PEiD / high section entropy
-  c) Suspicious Embedded Strings        → FLOSS / keyword scan
-     Keywords: "ransom", "bitcoin", "encrypt", "crypto"
-
-Notes:
-  - The paper targets Windows PE binaries; this implementation adds
-    graceful cross-platform fallbacks so the project runs on Linux/macOS too.
-  - pefile is used for PE analysis (pip install pefile).
-  - FLOSS is called as a subprocess if installed; falls back to strings/grep.
-  - On non-Windows systems, WinVerifyTrust is simulated via certificate
-    presence in the PE optional header.
-"""
-
 import os
 import sys
 import math
@@ -39,18 +17,13 @@ except ImportError:
     PEFILE_AVAILABLE = False
     log.debug("[StaticLayer] pefile not found. Install: pip install pefile")
 
-# ── Optional ctypes (Windows only) ───────────────────────────────────────────
 try:
     import ctypes
     CTYPES_AVAILABLE = True
 except ImportError:
     CTYPES_AVAILABLE = False
 
-# ── Entropy threshold for packed/encrypted section detection ─────────────────
-# Paper §III-D-1b: "high Entropy which is verified"
 SECTION_ENTROPY_THRESHOLD = 7.0
-
-# ── Suspicious string keywords (paper §III-D-1c) ─────────────────────────────
 SUSPICIOUS_KEYWORDS = [
     "ransom", "bitcoin", "encrypt", "crypto",
     "decrypt", "payment", "wallet", "tor",
