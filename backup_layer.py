@@ -30,7 +30,8 @@ import shutil
 import logging
 import threading
 from collections import defaultdict
-from datetime import datetime, UTC
+from datetime import datetime, timezone
+UTC = timezone.utc
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 

@@ -29,7 +29,8 @@ import threading
 import subprocess
 import tempfile
 from pathlib import Path
-from datetime import datetime, UTC
+from datetime import datetime, timezone
+UTC = timezone.utc
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Set
 from collections import defaultdict
@@ -52,12 +53,6 @@ except ImportError:
     PSUTIL_AVAILABLE = False
 
 
-# ═══════════════════════════════════════════════════════════════════════════ #
-# §1  CONSTANTS & CONFIGURATION                                               #
-# ═══════════════════════════════════════════════════════════════════════════ #
-
-# Paper §III-D-2: "Honey Files with user data file extensions mostly attacked
-# by Ransomware"
 HONEY_EXTENSIONS = [
     ".docx", ".doc", ".xlsx", ".xls", ".pptx", ".ppt",
     ".pdf", ".txt", ".jpg", ".jpeg", ".png", ".bmp",
@@ -65,8 +60,6 @@ HONEY_EXTENSIONS = [
     ".db",  ".sql", ".py",  ".js",  ".html", ".xml",
 ]
 
-# Paper §III-D-2: "Honey Files and Honey Directories are deployed in
-# critical user data folders"
 def get_honey_directories() -> List[Path]:
     home = Path.home()
     print(f"[Config] Home directory: {home}")
@@ -77,7 +70,6 @@ def get_honey_directories() -> List[Path]:
         home / "Downloads",
         home / "Videos",
         home / "Music",
-        # Fallback: always include a temp subfolder so tests work anywhere
         Path(tempfile.gettempdir()) / "ransomwall_honey",
     ]
     dirs = []
@@ -89,14 +81,12 @@ def get_honey_directories() -> List[Path]:
             pass
     return dirs
 
-# Paper §III-D-2b: Windows Crypto DLLs that Ransomware abuses heavily
 CRYPTO_DLLS = {
     "rsaenh.dll", "cryptsp.dll", "cryptbase.dll",
     "bcrypt.dll", "crypt32.dll", "cryptdll.dll",
     "cryptsvc.dll", "dssenh.dll",
 }
 
-# Paper §III-D-2c / §III-D-2d: Defense-disabling binaries
 DEFENSE_BINARIES = {
     "bcdedit.exe",   # disables safe-mode boot
     "vssadmin.exe",  # deletes Volume Shadow Copies
@@ -105,16 +95,12 @@ DEFENSE_BINARIES = {
     "powershell.exe",# often used for VSS deletion via script
 }
 
-# Suspicious registry keys (paper §III-D-2e)
 SUSPICIOUS_REGISTRY_KEYS = [
     r"SOFTWARE\Microsoft\Windows\CurrentVersion\Run",
     r"SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce",
     r"SYSTEM\CurrentControlSet\Control\SafeBoot",
 ]
 
-# Suspicion score weights – maps feature name -> weight
-# Paper §IV-A: "if Feature Collector observes presence of 6 or more feature
-# indicators in the Compact Feature Set, the process is tagged as suspicious"
 FEATURE_WEIGHTS: Dict[str, float] = {
     "honey_file_write":       2.0,   # very strong indicator
     "honey_file_rename":      2.0,
@@ -127,12 +113,7 @@ FEATURE_WEIGHTS: Dict[str, float] = {
     "entropy_spike":          1.5,   # high Shannon entropy on writes
 }
 
-SUSPICION_THRESHOLD = 6.0   # triggers "suspicious" tag (maps to paper's ≥6 features)
-
-
-# ═══════════════════════════════════════════════════════════════════════════ #
-# §2  LOGGER                                                                  #
-# ═══════════════════════════════════════════════════════════════════════════ #
+SUSPICION_THRESHOLD = 6.0   
 
 class RansomWallLogger:
     """
@@ -172,36 +153,16 @@ class RansomWallLogger:
         self.logger.info(msg)
 
 
-# ═══════════════════════════════════════════════════════════════════════════ #
-# §3  HONEY FILE MANAGER                                                      #
-#     Paper §III-B-2: "Honey Files and Honey Directories are deployed in      #
-#     critical user data folders … not expected to be modified by the user    #
-#     during normal operation."                                               #
-# ═══════════════════════════════════════════════════════════════════════════ #
-
 class HoneyFileManager:
-    """
-    Creates and tracks honey (decoy) files across watched directories.
+    
 
-    Design notes from paper:
-    - Files use real-world extensions that ransomware targets (.docx, .pdf …)
-    - Directories are placed before actual user files to be hit first
-      (paper: "placed such that Ransomware attacks them earlier than the
-      critical files … many variants use Depth First Search while enlisting
-      files for encryption")
-    - We record SHA-256 of each honey file at creation so we can detect
-      content modification even without inotify events.
-    """
-
-    HONEY_PREFIX = "__rw_honey__"   # internal marker – invisible to casual user
-
+    HONEY_PREFIX = "__rw_honey__"  
     def __init__(self, logger: RansomWallLogger):
         self.logger = logger
         self.honey_files: Set[str] = set()   # absolute paths
         self.honey_dirs:  Set[str] = set()
         self.checksums:   Dict[str, str] = {}   # path -> sha256
 
-    # ---------------------------------------------------------------------- #
     def deploy(self, directories: Optional[List[Path]] = None) -> int:
         """
         Deploy honey files into each watched directory.
@@ -212,7 +173,6 @@ class HoneyFileManager:
 
         count = 0
         for base_dir in directories:
-            # Paper: also create Honey Directories inside the watched folder
             honey_dir = base_dir / (self.HONEY_PREFIX + "dir")
             try:
                 honey_dir.mkdir(exist_ok=True)
@@ -220,7 +180,6 @@ class HoneyFileManager:
             except PermissionError:
                 continue
 
-            # Create one honey file per extension in the directory itself
             for ext in HONEY_EXTENSIONS:
                 fpath = base_dir / (self.HONEY_PREFIX + "file" + ext)
                 try:
@@ -228,8 +187,6 @@ class HoneyFileManager:
                     count += 1
                 except PermissionError:
                     pass
-
-            # Create a few inside the honey directory too
             for ext in [".docx", ".pdf", ".jpg", ".txt"]:
                 fpath = honey_dir / (self.HONEY_PREFIX + "nested" + ext)
                 try:

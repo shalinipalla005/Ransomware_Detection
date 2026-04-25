@@ -49,7 +49,8 @@ import tempfile
 import threading
 import platform
 from pathlib import Path
-from datetime import datetime, UTC
+from datetime import datetime, timezone
+UTC = timezone.utc
 from typing import Dict, Optional, Set
 
 # ---------------------------------------------------------------------------

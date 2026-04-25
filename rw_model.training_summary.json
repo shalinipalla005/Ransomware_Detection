@@ -1,0 +1,45 @@
+{
+  "samples_total": 401,
+  "samples_ransomware": 201,
+  "samples_benign": 200,
+  "train_samples": 320,
+  "test_samples": 81,
+  "accuracy": 1.0,
+  "precision": 1.0,
+  "recall_tpr": 1.0,
+  "f1_score": 1.0,
+  "cv_recall_mean": 1.0,
+  "cv_recall_std": 0.0,
+  "confusion_matrix": [
+    [
+      40,
+      0
+    ],
+    [
+      0,
+      41
+    ]
+  ],
+  "top_features": [
+    [
+      "file_rename",
+      0.4230619042995548
+    ],
+    [
+      "file_write",
+      0.2530088097483774
+    ],
+    [
+      "file_delete",
+      0.20152872575126587
+    ],
+    [
+      "file_read",
+      0.1224005601971986
+    ],
+    [
+      "dir_query",
+      3.53104007766442e-12
+    ]
+  ]
+}

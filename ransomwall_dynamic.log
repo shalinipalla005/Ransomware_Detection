@@ -93,3 +93,25 @@
 2026-04-12 20:05:26,846 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\91812\AppData\Local\Temp\rw_demo_7d2o6cjq\__rw_honey__dir\__rw_honey__nested.docx
 2026-04-12 20:05:26,847 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=C:\Users\91812\AppData\Local\Temp\rw_demo_7d2o6cjq\__rw_honey__file.txt
 2026-04-12 20:05:28,103 [DYNAMIC] INFO  [DynamicEngine] Stopped.
+2026-04-25 15:40:15,493 [DYNAMIC] INFO  [DynamicAnalyzer] Watching 1 directories.
+2026-04-25 15:40:15,495 [DYNAMIC] INFO  [DynamicEngine] Started.
+2026-04-25 15:40:18,233 [DYNAMIC] WARNING  [DYN/inject] RENAME_DATA->RANSOM  pid=10001  .docx->.encrypted
+2026-04-25 15:40:18,234 [DYNAMIC] WARNING  [DYN/inject] RENAME_DATA->RANSOM  pid=10001  .docx->.encrypted
+2026-04-25 15:40:18,234 [DYNAMIC] WARNING  [DYN/inject] RENAME_DATA->RANSOM  pid=10001  .docx->.encrypted
+2026-04-25 15:40:18,235 [DYNAMIC] WARNING  [DYN/inject] RENAME_DATA->RANSOM  pid=10001  .docx->.encrypted
+2026-04-25 15:40:18,236 [DYNAMIC] WARNING  [DYN/inject] RENAME_DATA->RANSOM  pid=10001  .docx->.encrypted
+2026-04-25 15:40:18,236 [DYNAMIC] WARNING  [DYN/inject] RENAME_DATA->RANSOM  pid=10001  .docx->.encrypted
+2026-04-25 15:40:18,237 [DYNAMIC] WARNING  [DYN/inject] RENAME_DATA->RANSOM  pid=10001  .docx->.encrypted
+2026-04-25 15:40:18,238 [DYNAMIC] WARNING  [DYN/inject] RENAME_DATA->RANSOM  pid=10001  .docx->.encrypted
+2026-04-25 15:40:18,240 [DYNAMIC] WARNING  [DYN/inject] RENAME_DATA->RANSOM  pid=10001  .docx->.encrypted
+2026-04-25 15:40:18,241 [DYNAMIC] WARNING  [DYN/inject] RENAME_DATA->RANSOM  pid=10001  .docx->.encrypted
+2026-04-25 15:40:18,243 [DYNAMIC] WARNING  [DYN/inject] RENAME_DATA->RANSOM  pid=10001  .docx->.encrypted
+2026-04-25 15:40:18,244 [DYNAMIC] WARNING  [DYN/inject] RENAME_DATA->RANSOM  pid=10001  .docx->.encrypted
+2026-04-25 15:40:18,246 [DYNAMIC] WARNING  [DynamicAnalyzer] *** SUSPICIOUS ***  pid=10001  name=unknown  score=6.0  triggers=['read_count', 'write_count', 'rename_count', 'delete_count', 'compound:read+write_encryption_pattern']
+2026-04-25 15:40:20,525 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=/tmp/rw_dataset_yqt2ppoh/honey_watch/__rw_honey__file.js
+2026-04-25 15:40:20,529 [DYNAMIC] DEBUG  [DYN] DIR_QUERY  /tmp/rw_dataset_yqt2ppoh/honey_watch
+2026-04-25 15:40:20,532 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=/tmp/rw_dataset_yqt2ppoh/honey_watch/__rw_honey__file.jpeg
+2026-04-25 15:40:20,534 [DYNAMIC] DEBUG  [DYN] DIR_QUERY  /tmp/rw_dataset_yqt2ppoh/honey_watch
+2026-04-25 15:40:20,535 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=/tmp/rw_dataset_yqt2ppoh/honey_watch/__rw_honey__dir/__rw_honey__nested.jpg
+2026-04-25 15:40:20,537 [DYNAMIC] DEBUG  [DYN] DIR_QUERY  /tmp/rw_dataset_yqt2ppoh/honey_watch/__rw_honey__dir
+2026-04-25 15:40:21,503 [DYNAMIC] INFO  [DynamicEngine] Stopped.
