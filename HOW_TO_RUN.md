@@ -1,10 +1,4 @@
-# RansomWall — Complete Project (COMSNETS 2018)
-
-## What was missing & what was added
-
-One file was absent from your project: **`ransomwall_dynamic_layer.py`** — the Dynamic Analysis Engine imported by both `main.py` and `generate_dataset.py`. That file is now delivered. All other files were already complete and correct.
-
----
+# RansomWall 
 
 ## Files in the project
 
@@ -13,7 +7,7 @@ One file was absent from your project: **`ransomwall_dynamic_layer.py`** — the
 | `main.py` | Top-level orchestrator — starts all layers, runs monitoring loop |
 | `stat_real.py` | Layer 1: Static analysis (PE signature, packer entropy, FLOSS strings) |
 | `ransomwall_trap_layer.py` | Layer 2: Honey files, watchdog, behavior detector |
-| `ransomwall_dynamic_layer.py` ★ NEW | Layer 3: IRP tracking (read/write/rename/delete/dir_query, fingerprint mismatch) |
+| `ransomwall_dynamic_layer.py` | Layer 3: IRP tracking (read/write/rename/delete/dir_query, fingerprint mismatch) |
 | `backup_layer.py` | Layer 4: Per-PID file backup / restore / cleanup |
 | `ml_layer.py` | Layer 5: GBT classifier with 3-bucket sliding-window consensus |
 | `generate_dataset.py` | Full feature extraction pipeline from real samples |
@@ -41,7 +35,6 @@ python augment_dataset.py --n 300
 
 # Train GradientBoostingClassifier
 python train_model.py
-# Expected output: Recall (TPR) ≥ 98.25% (paper target)
 ```
 
 ### Step 3 — Run the full pipeline demo
@@ -77,7 +70,7 @@ python generate_dataset.py --virusshare VirusShare.zip --benign ./clean_samples/
 
 ---
 
-## Architecture (paper §III-B, §IV-A)
+## Architecture
 
 ```
 [EXE]

@@ -1,7 +1,6 @@
 <#
 .SYNOPSIS
     RansomWall Kernel Driver - Full Installation and Management Script
-    Paper §IV-D: COMSNETS 2018 | Shaukat & Ribeiro, IIT Delhi
 
 .DESCRIPTION
     Complete PowerShell installer for RansomWallFilter.sys.
@@ -53,7 +52,6 @@ function Write-Banner {
     Write-Host ""
     Write-Host "+================================================================+" -ForegroundColor Cyan
     Write-Host "|   RansomWall File System Minifilter Driver Installer           |" -ForegroundColor Cyan
-    Write-Host "|   Paper: COMSNETS 2018  |  Shaukat & Ribeiro, IIT Delhi        |" -ForegroundColor Cyan
     Write-Host "+================================================================+" -ForegroundColor Cyan
     Write-Host ""
 }

@@ -1,26 +1,3 @@
-@echo off
-:: ============================================================================
-:: RansomWall Kernel Driver Installation Script
-:: ============================================================================
-:: Paper: "RansomWall: A Layered Defense System against Cryptographic
-::         Ransomware Attacks using Machine Learning" (COMSNETS 2018)
-::         Shaukat & Ribeiro, IIT Delhi
-::
-:: Paper §IV-D: Build environment:
-::   - Microsoft Visual Studio 2015
-::   - Microsoft Windows SDK 10
-::   - Microsoft Windows Driver Kit 10
-::
-:: Usage:
-::   Run this script AS ADMINISTRATOR from the directory containing
-::   RansomWallFilter.sys and RansomWallFilter.inf
-::
-:: Modes:
-::   install_driver.bat           -> install and start driver
-::   install_driver.bat uninstall -> stop and remove driver
-::   install_driver.bat testsign  -> enable test signing mode (requires reboot)
-:: ============================================================================
-
 setlocal EnableDelayedExpansion
 
 :: --- Colour codes (Windows 10+) ---
@@ -33,7 +10,6 @@ set RESET=[0m
 echo.
 echo %CYAN%+================================================================+%RESET%
 echo %CYAN%^|   RansomWall File System Minifilter Driver Installer          ^|%RESET%
-echo %CYAN%^|   Paper: COMSNETS 2018  ^|  Shaukat ^& Ribeiro, IIT Delhi       ^|%RESET%
 echo %CYAN%+================================================================+%RESET%
 echo.
 
@@ -62,9 +38,6 @@ if /i "%~1"=="testsign"  set ACTION=testsign
 if /i "%~1"=="status"    set ACTION=status
 if /i "%~1"=="build"     set ACTION=build
 
-:: ===========================================================================
-:: TEST SIGNING MODE
-:: ===========================================================================
 if "%ACTION%"=="testsign" (
     echo.
     echo %YELLOW%[INFO] Enabling Test Signing Mode...%RESET%
@@ -94,14 +67,11 @@ if "%ACTION%"=="testsign" (
     exit /b 0
 )
 
-:: ===========================================================================
-:: BUILD (calls MSBuild if WDK is available)
-:: ===========================================================================
+
 if "%ACTION%"=="build" (
     echo.
     echo %YELLOW%[INFO] Building RansomWallFilter.sys...%RESET%
 
-    :: Look for MSBuild in common WDK locations
     set MSBUILD=
     for %%p in (
         "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\MSBuild.exe"
@@ -137,9 +107,6 @@ if "%ACTION%"=="build" (
     exit /b 0
 )
 
-:: ===========================================================================
-:: STATUS CHECK
-:: ===========================================================================
 if "%ACTION%"=="status" (
     echo.
     echo %CYAN%[STATUS] Checking RansomWallFilter driver status...%RESET%
@@ -192,9 +159,6 @@ if "%ACTION%"=="uninstall" (
     exit /b 0
 )
 
-:: ===========================================================================
-:: INSTALL
-:: ===========================================================================
 echo.
 
 :: --- Check for the .sys file ---
