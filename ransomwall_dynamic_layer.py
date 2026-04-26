@@ -140,22 +140,6 @@ if WATCHDOG_AVAILABLE:
 
 
 class DynamicEngine:
-    """
-    RansomWall Dynamic Analysis Engine.
-
-    Tracks per-process file I/O rates and detects:
-      • Mass file write/rename/delete (bulk encryption pattern)
-      • Directory enumeration (ransomware scans before encrypting)
-      • Fingerprint mismatch (extension changed without magic-byte match)
-      • High Shannon entropy in written data (encryption indicator)
-
-    Public API (matches what main.py and generate_dataset.py expect):
-      start()                   – begin real filesystem monitoring
-      stop()                    – graceful shutdown
-      get_status(pid=None)      – return status dict for a PID or all PIDs
-      inject_irp(op, pid, ...)  – inject a synthetic IRP (testing/dataset gen)
-    """
-
     def __init__(self,
                  watch_dirs: Optional[List[Path]] = None,
                  log_path: str = "ransomwall_dynamic.log"):
@@ -180,7 +164,6 @@ class DynamicEngine:
 
         log.info(f"[DynamicEngine] Initialized. Watch dirs: {self._watch_dirs}")
 
-    # ── Lifecycle ─────────────────────────────────────────────────────────────
 
     def start(self):
         if self._running:
@@ -209,27 +192,12 @@ class DynamicEngine:
                 pass
         log.info("[DynamicEngine] Stopped.")
 
-    # ── IRP injection (testing + dataset generation interface) ─────────────────
 
     def inject_irp(self,
                    op:       str,
                    pid:      int,
                    path:     str = "",
                    dst_path: str = "") -> None:
-        """
-        Inject a synthetic IRP event for PID.
-
-        op values (paper §III-D-3):
-          "read"      – IRP_MJ_READ
-          "write"     – IRP_MJ_WRITE
-          "rename"    – IRP_MJ_SET_INFORMATION (FileRenameInformation)
-          "delete"    – IRP_MJ_SET_INFORMATION (FileDispositionInformation)
-          "dir_query" – IRP_MJ_DIRECTORY
-
-        Automatically computes:
-          - fingerprint_mismatch (if dst_path extension != magic bytes)
-          - entropy_spike (if path exists and written data has high entropy)
-        """
         with self._lock:
             if pid not in self._states:
                 self._states[pid] = ProcessState(pid=pid)
@@ -245,13 +213,12 @@ class DynamicEngine:
                 if path:
                     if path not in state.modified_files:
                         state.modified_files.append(path)
-                    # Check entropy of written file
+                    
                     self._check_entropy(state, path)
 
             elif op in ("rename", "mv", "move"):
                 state.rename_count += 1
                 if path and dst_path:
-                    # Fingerprint mismatch check (paper §III-D-3f)
                     if self._is_fingerprint_mismatch(path, dst_path):
                         state.fingerprint_mismatch += 1
                         log.info(
@@ -273,7 +240,6 @@ class DynamicEngine:
                 log.debug(f"[DynamicEngine] Unknown IRP op '{op}' for PID={pid}")
                 return
 
-            # Recompute dynamic suspicion score after each IRP
             state.recompute_score()
 
         log.debug(
@@ -285,17 +251,7 @@ class DynamicEngine:
     # ── Status query ──────────────────────────────────────────────────────────
 
     def get_status(self, pid: Optional[int] = None) -> dict:
-        """
-        Return dynamic layer status in a format compatible with
-        FeatureAggregator.build() in main.py.
-
-        Single PID:
-          Returns dict with keys: suspicion_score, feature_vector, modified_files
-
-        All PIDs (pid=None):
-          Returns {pid: status_dict, ...} for ALL tracked PIDs
-          (main.py filters by suspicion threshold itself).
-        """
+        
         with self._lock:
             if pid is not None:
                 state = self._states.get(pid)
@@ -318,27 +274,19 @@ class DynamicEngine:
 
     @staticmethod
     def _is_fingerprint_mismatch(src: str, dst: str) -> bool:
-        """
-        Paper §III-D-3f: Check if the destination extension implies a different
-        file type than the actual magic bytes of the source file.
-
-        Example: data.docx renamed to data.docx.encrypted  =>  mismatch
-                 data.pdf  renamed to data.pdf.locked       =>  mismatch
-        """
+       
         src_ext = Path(src).suffix.lower()
         dst_ext = Path(dst).suffix.lower()
 
-        # If extension changed AND destination has a suspicious suffix
         ransomware_suffixes = {
             ".locked", ".encrypted", ".enc", ".crypt", ".crypto",
             ".zepto", ".locky", ".cerber", ".wcry", ".wncry",
         }
 
         if dst_ext in ransomware_suffixes:
-            return True  # classic rename-to-.locked pattern
+            return True  
 
         if src_ext and dst_ext and src_ext != dst_ext:
-            # Extension changed; check if src file content matches src_ext magic
             magic = MAGIC_BYTES.get(src_ext)
             if magic and os.path.isfile(src):
                 try:
@@ -353,17 +301,12 @@ class DynamicEngine:
 
     @staticmethod
     def _check_entropy(state: ProcessState, path: str) -> None:
-        """
-        Paper §III-D-3g: High Shannon entropy in a written file indicates
-        encryption. Threshold ~ 7.2 bits/byte (encrypted data approaches 8.0).
-        Only checks files that actually exist on disk.
-        """
         if not path or not os.path.isfile(path):
             return
         try:
             data = Path(path).read_bytes()
             if len(data) < 64:
-                return  # too small to measure meaningfully
+                return  
             entropy = _shannon_entropy(data)
             if entropy > ENTROPY_THRESHOLD:
                 state.entropy_spike_count += 1
@@ -374,7 +317,6 @@ class DynamicEngine:
         except OSError:
             pass
 
-    # ── Convenience reset (for unit tests / demo) ──────────────────────────────
 
     def reset_pid(self, pid: int) -> None:
         with self._lock:
@@ -385,10 +327,6 @@ class DynamicEngine:
         with self._lock:
             return list(self._states.keys())
 
-
-# ════════════════════════════════════════════════════════════════════════════ #
-# UTILITY
-# ════════════════════════════════════════════════════════════════════════════ #
 
 def _shannon_entropy(data: bytes) -> float:
     """Shannon entropy in bits per byte."""
@@ -405,9 +343,6 @@ def _shannon_entropy(data: bytes) -> float:
     )
 
 
-# ════════════════════════════════════════════════════════════════════════════ #
-# SELF-TEST / DEMO
-# ════════════════════════════════════════════════════════════════════════════ #
 
 def _demo():
     import tempfile, shutil
