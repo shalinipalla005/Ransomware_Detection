@@ -1,9 +1,9 @@
 {
-  "samples_total": 401,
-  "samples_ransomware": 201,
-  "samples_benign": 200,
-  "train_samples": 320,
-  "test_samples": 81,
+  "samples_total": 1001,
+  "samples_ransomware": 501,
+  "samples_benign": 500,
+  "train_samples": 800,
+  "test_samples": 201,
   "accuracy": 1.0,
   "precision": 1.0,
   "recall_tpr": 1.0,
@@ -12,34 +12,34 @@
   "cv_recall_std": 0.0,
   "confusion_matrix": [
     [
-      40,
+      100,
       0
     ],
     [
       0,
-      41
+      101
     ]
   ],
   "top_features": [
     [
       "file_rename",
-      0.4230619042995548
+      0.4938107861560373
     ],
     [
       "file_write",
-      0.2530088097483774
+      0.395839830084278
     ],
     [
       "file_delete",
-      0.20152872575126587
+      0.11034938375968127
     ],
     [
       "file_read",
-      0.1224005601971986
+      2.008622462619262e-15
     ],
     [
       "dir_query",
-      3.53104007766442e-12
+      9.465558295669543e-16
     ]
   ]
 }

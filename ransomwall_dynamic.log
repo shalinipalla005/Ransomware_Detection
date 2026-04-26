@@ -115,3 +115,32 @@
 2026-04-25 15:40:20,535 [DYNAMIC] DEBUG  [DYN] DELETE  pid=0  path=/tmp/rw_dataset_yqt2ppoh/honey_watch/__rw_honey__dir/__rw_honey__nested.jpg
 2026-04-25 15:40:20,537 [DYNAMIC] DEBUG  [DYN] DIR_QUERY  /tmp/rw_dataset_yqt2ppoh/honey_watch/__rw_honey__dir
 2026-04-25 15:40:21,503 [DYNAMIC] INFO  [DynamicEngine] Stopped.
+16:21:29  INFO      RansomWall.DynamicLayer  |  [DynamicEngine] Initialized. Watch dirs: [WindowsPath('C:/Users/palla/AppData/Local/Temp/rw_demo_ev8g7gsk')]
+16:21:31  INFO      RansomWall.DynamicLayer  |  [DynamicEngine] Watchdog monitoring 1 directories.
+16:21:53  INFO      RansomWall.DynamicLayer  |  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+16:21:53  INFO      RansomWall.DynamicLayer  |  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+16:21:53  INFO      RansomWall.DynamicLayer  |  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+16:21:53  INFO      RansomWall.DynamicLayer  |  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+16:21:54  INFO      RansomWall.DynamicLayer  |  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+16:21:54  INFO      RansomWall.DynamicLayer  |  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+16:21:54  INFO      RansomWall.DynamicLayer  |  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+16:21:55  INFO      RansomWall.DynamicLayer  |  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+16:21:55  INFO      RansomWall.DynamicLayer  |  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+16:21:55  INFO      RansomWall.DynamicLayer  |  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+16:21:55  INFO      RansomWall.DynamicLayer  |  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+16:21:55  INFO      RansomWall.DynamicLayer  |  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+16:21:55  INFO      RansomWall.DynamicLayer  |  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+16:21:56  INFO      RansomWall.DynamicLayer  |  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+16:21:56  INFO      RansomWall.DynamicLayer  |  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+16:21:56  INFO      RansomWall.DynamicLayer  |  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+16:21:56  INFO      RansomWall.DynamicLayer  |  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+16:21:56  INFO      RansomWall.DynamicLayer  |  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+16:21:56  INFO      RansomWall.DynamicLayer  |  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+16:21:56  INFO      RansomWall.DynamicLayer  |  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+16:22:18  INFO      RansomWall.DynamicLayer  |  [DynamicEngine] Stopped.
+16:22:24  INFO      RansomWall.DynamicLayer  |  [DynamicEngine] Initialized. Watch dirs: [WindowsPath('C:/Users/palla/AppData/Local/Temp/ransomwall_watch')]
+16:22:25  INFO      RansomWall.DynamicLayer  |  [DynamicEngine] Watchdog monitoring 1 directories.
+16:22:56  INFO      RansomWall.DynamicLayer  |  [DynamicEngine] Stopped.
+16:23:12  INFO      RansomWall.DynamicLayer  |  [DynamicEngine] Initialized. Watch dirs: [WindowsPath('C:/Users/palla/AppData/Local/Temp/ransomwall_watch')]
+16:23:13  INFO      RansomWall.DynamicLayer  |  [DynamicEngine] Watchdog monitoring 1 directories.
+16:24:03  INFO      RansomWall.DynamicLayer  |  [DynamicEngine] Stopped.
