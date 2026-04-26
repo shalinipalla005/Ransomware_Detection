@@ -79,10 +79,10 @@ typedef struct _RANSOMWALL_IRP_MESSAGE {
 #pragma pack(pop)
 
 typedef enum _RANSOMWALL_CMD {
-    RW_CMD_SUSPEND_PID  = 1,    /* Temporarily suspend monitoring for PID */
-    RW_CMD_KILL_PID     = 2,    /* Request process termination */
-    RW_CMD_WHITELIST_PID= 3,    /* Mark PID as benign - stop monitoring */
-    RW_CMD_STATUS       = 4,    /* Query driver status */
+    RW_CMD_SUSPEND_PID  = 1,   
+    RW_CMD_KILL_PID     = 2,   
+    RW_CMD_WHITELIST_PID= 3,   
+    RW_CMD_STATUS       = 4,  
 } RANSOMWALL_CMD;
 
 typedef struct _RANSOMWALL_COMMAND {
@@ -355,8 +355,6 @@ RwGetProcessName(_Out_ WCHAR Name[260])
     process = PsGetCurrentProcess();
     if (!process) return;
 
-    /* ImageFileName is at a well-known offset in EPROCESS.
-     * Use PsGetProcessImageFileName if available (Vista+). */
     imageFileName = PsGetProcessImageFileName(process);
     if (imageFileName) {
         for (i = 0; i < 14 && imageFileName[i]; i++)
@@ -374,21 +372,14 @@ RwComputeEntropyX100(
     ULONG i, entropyX100 = 0;
 
     if (Length == 0) return 0;
-
-    /* Frequency count */
     for (i = 0; i < Length; i++) freq[Buffer[i]]++;
 
     for (i = 0; i < 256; i++) {
         if (freq[i] == 0) continue;
 
-        /* p = freq[i] / Length, scaled by 1000 for integer arithmetic */
         ULONG p_scaled = (freq[i] * 1000) / Length;
         if (p_scaled == 0) continue;
 
-        /*
-         * log2 approximation using bit count:
-         * Find position of highest set bit in freq[i] -> floor(log2(freq[i]))
-         */
         ULONG val = freq[i], bits = 0;
         while (val > 1) { val >>= 1; bits++; }
 
@@ -396,15 +387,12 @@ RwComputeEntropyX100(
         val_N = Length;
         while (val_N > 1) { val_N >>= 1; bits_N++; }
 
-        /* log2(freq[i]/N) ≈ bits - bits_N (integer approximation) */
         if (bits < bits_N) {
-            /* p*log2(p) contributes positively to -entropy */
             ULONG contrib = p_scaled * (bits_N - bits) / 1000;
             entropyX100 += contrib;
         }
     }
 
-    /* Scale to * 100 range (0-800 for 0.0 to 8.0 bits/byte) */
     return entropyX100;
 }
 
@@ -434,7 +422,6 @@ RwCheckFingerprintMismatch(
     );
     if (!NT_SUCCESS(status) || bytesRead < 4) return FALSE;
 
-    /* Compare magic bytes against known signatures */
     if (_wcsicmp(Extension, L".pdf") == 0) {
         return (RtlCompareMemory(header, "%PDF", 4) != 4);
     }
@@ -474,18 +461,17 @@ RwSendMessageToUserMode(_In_ PRANSOMWALL_IRP_MESSAGE Message)
     PFLT_PORT  clientPort;
     LARGE_INTEGER timeout;
 
-    /* Get client port reference safely */
+
     KeAcquireSpinLock(&g_ClientPortLock, &oldIrql);
     clientPort = g_ClientPort;
     KeReleaseSpinLock(&g_ClientPortLock, oldIrql);
 
     if (!clientPort) {
-        /* No user-mode client connected; drop message */
+       
         InterlockedIncrement(&g_DroppedMessages);
         return STATUS_PORT_DISCONNECTED;
     }
 
-    /* Non-blocking send with 0 timeout (don't stall the I/O path) */
     timeout.QuadPart = 0;
     status = FltSendMessage(
         g_FilterHandle,
@@ -498,7 +484,6 @@ RwSendMessageToUserMode(_In_ PRANSOMWALL_IRP_MESSAGE Message)
     );
 
     if (status == STATUS_TIMEOUT) {
-        /* User-mode is busy; drop to avoid blocking kernel I/O */
         InterlockedIncrement(&g_DroppedMessages);
         return STATUS_SUCCESS;
     }
@@ -518,7 +503,6 @@ RwBuildAndSendMessage(
     PUNICODE_STRING         srcPath = NULL;
     NTSTATUS                status;
 
-    /* Skip whitelisted (benign) processes */
     ULONG pid = (ULONG)(ULONG_PTR)PsGetCurrentProcessId();
     if (RwIsPidWhitelisted(pid)) return;
 
@@ -532,7 +516,6 @@ RwBuildAndSendMessage(
     KeQuerySystemTime(&msg.Timestamp);
     RwGetProcessName(msg.ProcessName);
 
-    /* Get source file path */
     status = RwGetFilePath(Data, FltObjects, &srcPath);
     if (NT_SUCCESS(status) && srcPath) {
         ULONG copyLen = srcPath->Length;
@@ -540,14 +523,12 @@ RwBuildAndSendMessage(
             copyLen = sizeof(msg.FilePath) - sizeof(WCHAR);
         RtlCopyMemory(msg.FilePath, srcPath->Buffer, copyLen);
 
-        /* Extract extension */
         RwGetExtension(srcPath, (WCHAR*)msg.FileExtension);
         msg.IsTargetExtension = RwIsTargetExtension((WCHAR*)msg.FileExtension);
 
         ExFreePoolWithTag(srcPath, RANSOMWALL_TAG);
     }
 
-    /* Get destination path for rename operations */
     if (DestPath && OpType == RW_OP_RENAME) {
         ULONG copyLen = DestPath->Length;
         if (copyLen > sizeof(msg.DestPath) - sizeof(WCHAR))
@@ -557,7 +538,6 @@ RwBuildAndSendMessage(
         msg.IsRansomExtension = RwIsRansomExtension((WCHAR*)msg.DestExtension);
     }
 
-    /* Get file size */
     if (FltObjects->FileObject) {
         LARGE_INTEGER fileSize = {0};
         status = FltQueryInformationFile(
@@ -593,7 +573,6 @@ RansomWallPreRead(
     if (!FltObjects->FileObject)                   return FLT_PREOP_SUCCESS_NO_CALLBACK;
     if (KeGetCurrentIrql() > PASSIVE_LEVEL)        return FLT_PREOP_SUCCESS_NO_CALLBACK;
 
-    /* Check extension - only track target data files */
     PUNICODE_STRING srcPath = NULL;
     NTSTATUS status = RwGetFilePath(Data, FltObjects, &srcPath);
     if (NT_SUCCESS(status) && srcPath) {
@@ -759,12 +738,6 @@ RansomWallPreSetInfo(
     return FLT_PREOP_SUCCESS_NO_CALLBACK;
 }
 
-/*
- * PRE-DIRECTORY_CONTROL callback
- * Paper §III-D-3a: "To perform encryption, Ransomware first constructs list
- * of user data files having extensions targeted by its family. To form the
- * list it generates a large number of Directory Listing Queries."
- */
 FLT_PREOP_CALLBACK_STATUS
 RansomWallPreDirCtrl(
     _Inout_ PFLT_CALLBACK_DATA    Data,
@@ -784,13 +757,6 @@ RansomWallPreDirCtrl(
 
     return FLT_PREOP_SUCCESS_NO_CALLBACK;
 }
-
-/* ══════════════════════════════════════════════════════════════════════════ */
-/* COMMUNICATION PORT CALLBACKS                                                */
-/*                                                                             */
-/* The Python user-mode bridge connects to \RansomWallPort to receive IRP    */
-/* events. It also sends control commands back (kill PID, whitelist, etc.).   */
-/* ══════════════════════════════════════════════════════════════════════════ */
 
 NTSTATUS
 RansomWallPortConnect(
@@ -832,11 +798,6 @@ RansomWallPortDisconnect(
     KdPrint(("[RansomWall] User-mode client disconnected.\n"));
 }
 
-/*
- * Handle control commands from user-mode Python bridge.
- * Paper §III-B-4: "If ML layer classifies as Ransomware, the process
- * is killed and files modified by it are restored."
- */
 NTSTATUS
 RansomWallMessageNotify(
     _In_  PVOID  PortCookie,
@@ -933,15 +894,6 @@ RansomWallMessageNotify(
     return status;
 }
 
-/* ══════════════════════════════════════════════════════════════════════════ */
-/* DRIVER ENTRY / UNLOAD                                                       */
-/* ══════════════════════════════════════════════════════════════════════════ */
-
-/*
- * DriverEntry - called by the I/O Manager when the driver is loaded.
- * Registers the minifilter with Filter Manager and creates the
- * communication port for the user-mode Python bridge.
- */
 NTSTATUS
 DriverEntry(
     _In_ PDRIVER_OBJECT  DriverObject,
@@ -957,16 +909,9 @@ DriverEntry(
 
     KdPrint(("[RansomWall] DriverEntry - initializing minifilter...\n"));
 
-    /* Initialize spinlocks */
     KeInitializeSpinLock(&g_ClientPortLock);
     KeInitializeSpinLock(&g_WhitelistLock);
 
-    /*
-     * Paper §IV-B: "Filter Manager forwards I/O Request Packets generated
-     * by file system operations to the registered filter drivers."
-     *
-     * Register the minifilter with the Filter Manager.
-     */
     status = FltRegisterFilter(
         DriverObject,
         &g_FilterRegistration,
@@ -976,13 +921,6 @@ DriverEntry(
         KdPrint(("[RansomWall] FltRegisterFilter failed: 0x%08X\n", status));
         return status;
     }
-
-    /*
-     * Create a communication port so the user-mode Python bridge
-     * (kernel_bridge.py) can connect and receive IRP event messages.
-     *
-     * Security: only SYSTEM and Administrators can connect.
-     */
     status = FltBuildDefaultSecurityDescriptor(&sd, FLT_PORT_ALL_ACCESS);
     if (!NT_SUCCESS(status)) {
         FltUnregisterFilter(g_FilterHandle);
@@ -1002,7 +940,7 @@ DriverEntry(
         g_FilterHandle,
         &g_ServerPort,
         &objAttr,
-        NULL,                       /* server port cookie */
+        NULL,                      
         RansomWallPortConnect,
         RansomWallPortDisconnect,
         RansomWallMessageNotify,
@@ -1033,10 +971,7 @@ DriverEntry(
     return STATUS_SUCCESS;
 }
 
-/*
- * FilterUnload - called when the driver is being unloaded.
- * Paper §IV-B: clean teardown of Filter Manager registration.
- */
+
 NTSTATUS
 RansomWallUnload(
     _In_ FLT_FILTER_UNLOAD_FLAGS Flags
