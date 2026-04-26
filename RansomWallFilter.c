@@ -1,61 +1,3 @@
-/*
- * RansomWall Kernel-Mode File System Minifilter Driver
- * =====================================================
- * Paper: "RansomWall: A Layered Defense System against Cryptographic
- *         Ransomware Attacks using Machine Learning" (COMSNETS 2018)
- *         Shaukat & Ribeiro, IIT Delhi
- *
- * Paper Section IV-B:
- *   "RansomWall implements a File System Filter Driver ... It is a kernel
- *    level driver that filters I/O operations performed on one or more file
- *    systems. For Microsoft Windows operating system modern File System
- *    Filter Drivers are known as minifilter drivers."
- *
- * Architecture (paper §IV-A):
- *   [User File I/O]
- *       |
- *   [I/O Manager]
- *       |
- *   [Filter Manager] <-- registers this minifilter
- *       |
- *   [RansomWall File System Filter Driver]  <-- THIS FILE
- *       |
- *   [File System Driver]
- *       |
- *   [Storage Driver Stack]
- *       |
- *   [Hardware]
- *
- * IRP types monitored (paper §III-D-3):
- *   IRP_MJ_READ              -> file_read count
- *   IRP_MJ_WRITE             -> file_write count + entropy check
- *   IRP_MJ_SET_INFORMATION   -> rename / delete operations
- *   IRP_MJ_DIRECTORY         -> dir_query count
- *   IRP_MJ_CREATE            -> file open tracking
- *
- * Communication with user-mode Python layer:
- *   Uses a named communication port (paper §IV-A: "IRP Filter forwards
- *   IRP messages to Dynamic and Trap Layers for feature computation").
- *   Port name: \RansomWallPort
- *   Message format: RANSOMWALL_IRP_MESSAGE struct (defined below)
- *
- * Build requirements:
- *   - Windows Driver Kit (WDK) 10 (paper §IV-D)
- *   - Microsoft Visual Studio 2015+ (paper §IV-D)
- *   - Target: Windows 7 / 8.1 / 10 x64
- *
- * Build command (from WDK x64 Native Tools Command Prompt):
- *   msbuild RansomWallFilter.vcxproj /p:Configuration=Release /p:Platform=x64
- *
- * Installation:
- *   sc create RansomWallFilter type= filesys binPath= C:\path\to\RansomWallFilter.sys
- *   sc start RansomWallFilter
- *   (or use the provided installer script: install_driver.bat)
- *
- * IMPORTANT: This driver must be loaded with a valid code-signing certificate
- *            on Windows 10/11 with Secure Boot enabled. For testing, use
- *            Test Signing Mode: bcdedit /set testsigning on
- */
 
 #include <fltKernel.h>
 #include <dontuse.h>
@@ -63,31 +5,24 @@
 #include <ntstrsafe.h>
 #include <wdm.h>
 
-/* ══════════════════════════════════════════════════════════════════════════ */
-/* CONSTANTS & CONFIGURATION                                                   */
-/* ══════════════════════════════════════════════════════════════════════════ */
 
 #define RANSOMWALL_FILTER_NAME      L"RansomWallFilter"
 #define RANSOMWALL_PORT_NAME        L"\\RansomWallPort"
-#define RANSOMWALL_ALTITUDE         L"370030"   /* Load order altitude */
+#define RANSOMWALL_ALTITUDE         L"370030"  
 
-/* Maximum clients (Python user-mode processes) connected simultaneously */
+
 #define RANSOMWALL_MAX_CONNECTIONS  2
-
-/* Message queue depth before dropping (ring buffer) */
 #define RANSOMWALL_MSG_QUEUE_SIZE   1024
 
-/* Minimum file size to compute entropy (< 64 bytes not meaningful) */
 #define ENTROPY_MIN_FILE_SIZE       64
 
-/* Shannon entropy threshold: ~7.2 bits/byte = encrypted/compressed */
-#define ENTROPY_THRESHOLD_X100      720     /* stored as integer * 100 */
 
-/* Pool tags for memory allocation tracing */
-#define RANSOMWALL_TAG              'llWR'  /* 'RWll' reversed for pool viewer */
+#define ENTROPY_THRESHOLD_X100      720    
+
+
+#define RANSOMWALL_TAG              'llWR'  
 #define RANSOMWALL_MSG_TAG          'gsMR'
 
-/* Ransomware-typical target extensions (paper §III-A Stage 3) */
 static const WCHAR* TARGET_EXTENSIONS[] = {
     L".docx", L".doc",  L".xlsx", L".xls",
     L".pptx", L".ppt",  L".pdf",  L".txt",
@@ -98,7 +33,6 @@ static const WCHAR* TARGET_EXTENSIONS[] = {
     NULL
 };
 
-/* Known ransomware-added extensions (paper §III-D-3d) */
 static const WCHAR* RANSOM_EXTENSIONS[] = {
     L".locked",    L".encrypted", L".enc",
     L".crypt",     L".crypto",    L".zepto",
@@ -107,70 +41,44 @@ static const WCHAR* RANSOM_EXTENSIONS[] = {
     NULL
 };
 
-/* ══════════════════════════════════════════════════════════════════════════ */
-/* IRP MESSAGE STRUCTURES (shared with user-mode Python bridge)               */
-/* ══════════════════════════════════════════════════════════════════════════ */
 
-/*
- * IRP operation types - mirrors paper §III-D-3 feature list
- */
 typedef enum _RANSOMWALL_OP_TYPE {
     RW_OP_UNKNOWN       = 0,
-    RW_OP_READ          = 1,   /* IRP_MJ_READ          */
-    RW_OP_WRITE         = 2,   /* IRP_MJ_WRITE         */
-    RW_OP_RENAME        = 3,   /* IRP_MJ_SET_INFORMATION FileRenameInformation */
-    RW_OP_DELETE        = 4,   /* IRP_MJ_SET_INFORMATION FileDispositionInformation */
-    RW_OP_DIR_QUERY     = 5,   /* IRP_MJ_DIRECTORY     */
-    RW_OP_CREATE        = 6,   /* IRP_MJ_CREATE        */
-    RW_OP_FINGERPRINT   = 7,   /* Extension-magic mismatch detected */
-    RW_OP_ENTROPY_SPIKE = 8,   /* High entropy write detected */
+    RW_OP_READ          = 1,  
+    RW_OP_WRITE         = 2,  
+    RW_OP_RENAME        = 3,   
+    RW_OP_DELETE        = 4, 
+    RW_OP_DIR_QUERY     = 5,  
+    RW_OP_CREATE        = 6,   
+    RW_OP_FINGERPRINT   = 7,  
+    RW_OP_ENTROPY_SPIKE = 8,   
 } RANSOMWALL_OP_TYPE;
 
-/*
- * Message sent from kernel driver to user-mode Python bridge.
- * Python bridge reads this from the communication port and forwards
- * to DynamicEngine.inject_irp() and TrapLayer.inject_test_event().
- *
- * Paper §IV-A: "IRP Filter forwards IRP messages ... to Dynamic and
- * Trap Layers for feature computation."
- */
+
 #pragma pack(push, 1)
 typedef struct _RANSOMWALL_IRP_MESSAGE {
-    /* Header */
-    ULONG           MessageSize;        /* sizeof this struct */
-    ULONG           Version;            /* Protocol version = 1 */
 
-    /* Process identity (paper §IV-A: per-process tracking) */
-    ULONG           ProcessId;          /* PID of the process performing I/O */
+    ULONG           MessageSize;       
+    ULONG           Version;           
+   
+    ULONG           ProcessId;         
     ULONG           ThreadId;
-    WCHAR           ProcessName[260];   /* Process image name (e.g., "svchost.exe") */
-
-    /* IRP information */
-    RANSOMWALL_OP_TYPE  Operation;      /* What kind of file operation */
-    LARGE_INTEGER   Timestamp;          /* System time of the IRP */
-    ULONG           FileSize;           /* Size of the file being operated on */
-
-    /* File path (source) */
-    WCHAR           FilePath[520];      /* Full NT path of source file */
-    USHORT          FileExtension[16];  /* Extension (e.g., L".docx") */
-
-    /* Rename destination (valid when Operation == RW_OP_RENAME) */
-    WCHAR           DestPath[520];      /* Full NT path of destination */
-    USHORT          DestExtension[16];  /* Destination extension */
-
-    /* Entropy data (valid when Operation == RW_OP_WRITE or RW_OP_ENTROPY_SPIKE) */
-    ULONG           EntropyX100;        /* Shannon entropy * 100 (integer) */
-    BOOLEAN         IsTargetExtension;  /* TRUE if source extension is in TARGET_EXTENSIONS */
-    BOOLEAN         IsRansomExtension;  /* TRUE if dest extension is in RANSOM_EXTENSIONS */
-    BOOLEAN         FingerprintMismatch;/* TRUE if magic bytes don't match extension */
-
+    WCHAR           ProcessName[260];
+  
+    RANSOMWALL_OP_TYPE  Operation;     
+    LARGE_INTEGER   Timestamp;         
+    ULONG           FileSize;           
+    WCHAR           FilePath[520];     
+    USHORT          FileExtension[16];  
+    WCHAR           DestPath[520];     
+    USHORT          DestExtension[16]; 
+    ULONG           EntropyX100;       
+    BOOLEAN         IsTargetExtension; 
+    BOOLEAN         IsRansomExtension;  
+    BOOLEAN         FingerprintMismatch;
 } RANSOMWALL_IRP_MESSAGE, *PRANSOMWALL_IRP_MESSAGE;
 #pragma pack(pop)
 
-/*
- * Filter control commands from user-mode to kernel driver.
- * Sent via FltSendMessage from the Python bridge.
- */
 typedef enum _RANSOMWALL_CMD {
     RW_CMD_SUSPEND_PID  = 1,    /* Temporarily suspend monitoring for PID */
     RW_CMD_KILL_PID     = 2,    /* Request process termination */
@@ -184,36 +92,25 @@ typedef struct _RANSOMWALL_COMMAND {
     WCHAR           Reserved[64];
 } RANSOMWALL_COMMAND, *PRANSOMWALL_COMMAND;
 
-/* ══════════════════════════════════════════════════════════════════════════ */
-/* DRIVER GLOBAL STATE                                                         */
-/* ══════════════════════════════════════════════════════════════════════════ */
 
-/* Filter handle returned by FltRegisterFilter */
 static PFLT_FILTER       g_FilterHandle      = NULL;
 
-/* Communication port (kernel side) */
 static PFLT_PORT         g_ServerPort        = NULL;
 
-/* Connection from user-mode Python bridge */
 static PFLT_PORT         g_ClientPort        = NULL;
-
-/* Spinlock protecting g_ClientPort */
 static KSPIN_LOCK        g_ClientPortLock;
 
-/* Statistics counters (paper §V-G: "less than 1% CPU Load" for normal) */
+
 static volatile LONG     g_TotalIRPs         = 0;
 static volatile LONG     g_SuspiciousIRPs    = 0;
 static volatile LONG     g_DroppedMessages   = 0;
 
-/* Whitelist of known-benign PIDs (classified by ML layer) */
+
 #define MAX_WHITELIST_SIZE  256
 static ULONG             g_WhitelistPids[MAX_WHITELIST_SIZE] = {0};
 static ULONG             g_WhitelistCount = 0;
 static KSPIN_LOCK        g_WhitelistLock;
 
-/* ══════════════════════════════════════════════════════════════════════════ */
-/* FORWARD DECLARATIONS                                                        */
-/* ══════════════════════════════════════════════════════════════════════════ */
 
 DRIVER_INITIALIZE DriverEntry;
 NTSTATUS DriverEntry(
@@ -277,33 +174,18 @@ NTSTATUS RansomWallMessageNotify(
     _Out_ PULONG ReturnOutputBufferLength
 );
 
-/* ══════════════════════════════════════════════════════════════════════════ */
-/* FILTER REGISTRATION TABLE                                                   */
-/*                                                                             */
-/* Paper §IV-B: "Pre-operation, post-operation or both callback routines      */
-/* can be registered for desired IRPs depending on whether monitoring is       */
-/* required before or after the file operation."                               */
-/* ══════════════════════════════════════════════════════════════════════════ */
+
 
 static const FLT_OPERATION_REGISTRATION g_Callbacks[] = {
 
-    /*
-     * IRP_MJ_READ  (paper §III-D-3b: File Read Operations)
-     * Pre-operation: capture PID, file path, size before read completes.
-     */
     {
         IRP_MJ_READ,
         0,
         RansomWallPreRead,
-        NULL    /* no post-op needed for read counting */
+        NULL    
     },
 
-    /*
-     * IRP_MJ_WRITE  (paper §III-D-3c: File Write Operations +
-     *                          §III-D-3g: Shannon Entropy of File Writes)
-     * Both pre and post: pre captures metadata, post computes entropy
-     * on written buffer.
-     */
+   
     {
         IRP_MJ_WRITE,
         0,
@@ -311,12 +193,7 @@ static const FLT_OPERATION_REGISTRATION g_Callbacks[] = {
         RansomWallPostWrite
     },
 
-    /*
-     * IRP_MJ_SET_INFORMATION covers:
-     *   FileRenameInformation        -> §III-D-3d: rename .docx -> .encrypted
-     *   FileDispositionInformation   -> §III-D-3e: file deletion
-     * Pre-operation: captures source/dest paths before rename/delete.
-     */
+
     {
         IRP_MJ_SET_INFORMATION,
         0,
@@ -324,10 +201,6 @@ static const FLT_OPERATION_REGISTRATION g_Callbacks[] = {
         NULL
     },
 
-    /*
-     * IRP_MJ_DIRECTORY  (paper §III-D-3a: Directory Info Queries)
-     * Pre-operation: counts directory enumeration calls per PID.
-     */
     {
         IRP_MJ_DIRECTORY_CONTROL,
         0,
@@ -338,33 +211,22 @@ static const FLT_OPERATION_REGISTRATION g_Callbacks[] = {
     { IRP_MJ_OPERATION_END }
 };
 
-/*
- * Filter registration structure.
- * Paper §IV-B: "Filter Manager forwards I/O Request Packets generated
- * by file system operations to the registered filter drivers."
- */
 static const FLT_REGISTRATION g_FilterRegistration = {
-    sizeof(FLT_REGISTRATION),           /* Size */
-    FLT_REGISTRATION_VERSION,           /* Version */
-    0,                                  /* Flags */
-    NULL,                               /* Context registrations */
-    g_Callbacks,                        /* Operation callbacks */
-    RansomWallUnload,                   /* FilterUnload */
-    NULL,                               /* InstanceSetup */
-    NULL,                               /* InstanceQueryTeardown */
-    NULL,                               /* InstanceTeardownStart */
-    NULL,                               /* InstanceTeardownComplete */
-    NULL, NULL, NULL                    /* GenerateFileName etc. */
+    sizeof(FLT_REGISTRATION),          
+    FLT_REGISTRATION_VERSION,           
+    0,                                 
+    NULL,                             
+    g_Callbacks,                      
+    RansomWallUnload,                 
+    NULL,                              
+    NULL,                           
+    NULL,                           
+    NULL,                              
+    NULL, NULL, NULL                    
 };
 
-/* ══════════════════════════════════════════════════════════════════════════ */
-/* UTILITY FUNCTIONS                                                           */
-/* ══════════════════════════════════════════════════════════════════════════ */
 
-/*
- * Extract the file extension from an NT file path.
- * e.g., \Device\HarddiskVolume3\Users\victim\docs\report.docx -> ".docx"
- */
+
 static VOID
 RwGetExtension(
     _In_  PUNICODE_STRING FilePath,
@@ -379,9 +241,8 @@ RwGetExtension(
     /* Scan backwards for the last '.' */
     for (i = FilePath->Length / sizeof(WCHAR); i > 0; i--) {
         WCHAR c = FilePath->Buffer[i - 1];
-        if (c == L'\\' || c == L'/') break;   /* no extension found */
+        if (c == L'\\' || c == L'/') break;   
         if (c == L'.') {
-            /* Copy extension up to 15 chars */
             USHORT extLen = FilePath->Length / sizeof(WCHAR) - i + 1;
             if (extLen > 15) extLen = 15;
             RtlCopyMemory(ExtBuf,
@@ -398,11 +259,6 @@ RwGetExtension(
     }
 }
 
-/*
- * Check if extension is in the ransomware target list.
- * Paper §III-A Stage 3: "Ransomware targets user data files with specific
- * extensions that varies with each family."
- */
 static BOOLEAN
 RwIsTargetExtension(_In_ const WCHAR* Ext)
 {
@@ -414,11 +270,7 @@ RwIsTargetExtension(_In_ const WCHAR* Ext)
     return FALSE;
 }
 
-/*
- * Check if extension is a known ransomware-appended suffix.
- * Paper §III-D-3d: "Most Ransomware variants rename files to an extension
- * (non-data) which is characteristic of their family."
- */
+
 static BOOLEAN
 RwIsRansomExtension(_In_ const WCHAR* Ext)
 {
@@ -430,10 +282,6 @@ RwIsRansomExtension(_In_ const WCHAR* Ext)
     return FALSE;
 }
 
-/*
- * Check if PID is in the whitelist (classified as benign by ML layer).
- * Paper §III-B-4: "If classified as Benign then files backed up ... are deleted."
- */
 static BOOLEAN
 RwIsPidWhitelisted(_In_ ULONG Pid)
 {
@@ -452,10 +300,6 @@ RwIsPidWhitelisted(_In_ ULONG Pid)
     return found;
 }
 
-/*
- * Get the file path from an FLT_CALLBACK_DATA.
- * Caller must free the returned UNICODE_STRING buffer with ExFreePoolWithTag.
- */
 static NTSTATUS
 RwGetFilePath(
     _In_  PFLT_CALLBACK_DATA    Data,
@@ -500,10 +344,7 @@ RwGetFilePath(
     return STATUS_SUCCESS;
 }
 
-/*
- * Get the current process name from EPROCESS.
- * Returns the ImageFileName field (15 chars max from kernel).
- */
+
 static VOID
 RwGetProcessName(_Out_ WCHAR Name[260])
 {
@@ -524,14 +365,6 @@ RwGetProcessName(_Out_ WCHAR Name[260])
     }
 }
 
-/*
- * Compute Shannon entropy of a byte buffer.
- * Paper §III-D-3g: "Entropy of data buffer in memory modified during file
- * write operation to a value around 8 indicates encryption possibility."
- *
- * Returns entropy * 100 as an integer to avoid floating-point in kernel.
- * e.g., 720 = 7.20 bits/byte
- */
 static ULONG
 RwComputeEntropyX100(
     _In_ PUCHAR Buffer,
@@ -546,12 +379,6 @@ RwComputeEntropyX100(
     /* Frequency count */
     for (i = 0; i < Length; i++) freq[Buffer[i]]++;
 
-    /*
-     * entropy = -sum( p * log2(p) )
-     * We use integer approximation: log2(x) ≈ computed via bit manipulation.
-     * For accuracy we use the identity: log2(p) = log2(freq/N)
-     *                                            = log2(freq) - log2(N)
-     */
     for (i = 0; i < 256; i++) {
         if (freq[i] == 0) continue;
 
@@ -582,13 +409,6 @@ RwComputeEntropyX100(
     return entropyX100;
 }
 
-/*
- * Check file magic bytes for fingerprint mismatch detection.
- * Paper §III-D-3f: "Modification of file signature in header of a user data
- * file to a new signature which does not match its extension."
- *
- * Read first 8 bytes from the file stream and compare against known magic.
- */
 static BOOLEAN
 RwCheckFingerprintMismatch(
     _In_ PFLT_CALLBACK_DATA    Data,
@@ -646,15 +466,6 @@ RwCheckFingerprintMismatch(
     return FALSE;
 }
 
-/* ══════════════════════════════════════════════════════════════════════════ */
-/* MESSAGE SENDING TO USER-MODE                                                */
-/*                                                                             */
-/* Paper §IV-A: "IRP Filter registers with File System I/O Manager during     */
-/* RansomWall initialization for receiving IRP messages. During file          */
-/* operations, I/O Manager forwards generated IRP messages to the registered  */
-/* IRP Filter. The IRP Filter forwards IRP messages ... to Dynamic and        */
-/* Trap Layers for feature computation."                                       */
-/* ══════════════════════════════════════════════════════════════════════════ */
 
 static NTSTATUS
 RwSendMessageToUserMode(_In_ PRANSOMWALL_IRP_MESSAGE Message)
@@ -696,10 +507,6 @@ RwSendMessageToUserMode(_In_ PRANSOMWALL_IRP_MESSAGE Message)
     return status;
 }
 
-/*
- * Build and send a complete IRP message.
- * Fills in all fields and calls RwSendMessageToUserMode.
- */
 static VOID
 RwBuildAndSendMessage(
     _In_     PFLT_CALLBACK_DATA    Data,
@@ -773,16 +580,6 @@ RwBuildAndSendMessage(
     RwSendMessageToUserMode(&msg);
 }
 
-/* ══════════════════════════════════════════════════════════════════════════ */
-/* IRP CALLBACK IMPLEMENTATIONS                                                */
-/* ══════════════════════════════════════════════════════════════════════════ */
-
-/*
- * PRE-READ callback
- * Paper §III-D-3b: "Contents of user data files are read before encrypting
- * them. Massive encryption generates extensive read operations on user data
- * files with target extensions that are tracked."
- */
 FLT_PREOP_CALLBACK_STATUS
 RansomWallPreRead(
     _Inout_ PFLT_CALLBACK_DATA    Data,
@@ -792,7 +589,6 @@ RansomWallPreRead(
 {
     UNREFERENCED_PARAMETER(CompletionContext);
 
-    /* Only track reads on user data files (not paging, not MDL reads) */
     if (Data->Iopb->IrpFlags & IRP_PAGING_IO)   return FLT_PREOP_SUCCESS_NO_CALLBACK;
     if (Data->Iopb->IrpFlags & IRP_NOCACHE)       return FLT_PREOP_SUCCESS_NO_CALLBACK;
     if (!FltObjects->FileObject)                   return FLT_PREOP_SUCCESS_NO_CALLBACK;
@@ -813,12 +609,6 @@ RansomWallPreRead(
     return FLT_PREOP_SUCCESS_NO_CALLBACK;
 }
 
-/*
- * PRE-WRITE callback
- * Paper §III-D-3c: "Encrypted user data is written back to the file
- * generating huge write operations which are monitored."
- * Paper §III-D-3f: File Fingerprinting (magic byte check)
- */
 FLT_PREOP_CALLBACK_STATUS
 RansomWallPreWrite(
     _Inout_ PFLT_CALLBACK_DATA    Data,
@@ -848,12 +638,6 @@ RansomWallPreWrite(
     return FLT_PREOP_SUCCESS_WITH_CALLBACK;
 }
 
-/*
- * POST-WRITE callback
- * Compute Shannon entropy on the written data buffer.
- * Paper §III-D-3g: "Entropy of data buffer in memory modified during file
- * write operation to a value around 8 indicates encryption possibility."
- */
 FLT_POSTOP_CALLBACK_STATUS
 RansomWallPostWrite(
     _Inout_ PFLT_CALLBACK_DATA       Data,
@@ -884,11 +668,11 @@ RansomWallPostWrite(
 
     if (!buffer) return FLT_POSTOP_FINISHED_PROCESSING;
 
-    /* Compute entropy */
+  
     ULONG limit = (bufLen > 4096) ? 4096 : bufLen;   /* sample first 4KB */
     ULONG entropyX100 = RwComputeEntropyX100((PUCHAR)buffer, limit);
 
-    /* Build write message, include entropy */
+  
     RANSOMWALL_IRP_MESSAGE msg;
     RtlZeroMemory(&msg, sizeof(msg));
     msg.MessageSize  = sizeof(msg);
@@ -928,17 +712,6 @@ RansomWallPostWrite(
     return FLT_POSTOP_FINISHED_PROCESSING;
 }
 
-/*
- * PRE-SET_INFORMATION callback
- * Handles both rename and delete operations.
- *
- * Paper §III-D-3d: "Most Ransomware variants rename files to an extension
- * (non-data) which is characteristic of their family after encrypting them.
- * This results in massive file rename operations."
- *
- * Paper §III-D-3e: "Some Ransomware families delete original files after
- * creating new encrypted files."
- */
 FLT_PREOP_CALLBACK_STATUS
 RansomWallPreSetInfo(
     _Inout_ PFLT_CALLBACK_DATA    Data,
