@@ -50,6 +50,8 @@ import threading
 import platform
 from pathlib import Path
 from datetime import datetime, timezone
+
+from numpy import False_
 UTC = timezone.utc
 from typing import Dict, Optional, Set
 
@@ -76,14 +78,6 @@ SUSPICION_THRESHOLD = 6.0
 # Consecutive benign ticks before we finalize cleanup
 BENIGN_CONFIRM_TICKS = 5
 
-BANNER = """
-+====================================================================+
-|       RansomWall - Layered Defense Against Cryptographic           |
-|             Ransomware Attacks using Machine Learning              |
-|       Shaukat & Ribeiro  |  IIT Delhi  |  COMSNETS 2018           |
-+====================================================================+
-"""
-
 
 # ===========================================================================
 # LOGGING
@@ -96,6 +90,7 @@ def _setup_logging(log_path: str = "ransomwall_main.log") -> logging.Logger:
     )
     logger = logging.getLogger("RansomWall.Main")
     logger.setLevel(logging.DEBUG)
+    logger.propagate = False
     if logger.handlers:
         return logger
 
@@ -257,7 +252,6 @@ class RansomWallSystem:
                  log_path:   str = "ransomwall_main.log"):
 
         self.log = _setup_logging(log_path)
-        self.log.info(BANNER)
 
         # Watch directories shared between Trap and Dynamic layers
         if watch_dirs is None:
@@ -450,6 +444,8 @@ class RansomWallSystem:
         # -- Step 5: ML classification (sliding-window) ----------------------
         # Paper Section IV-C: same classification for 3 contiguous intervals
         verdict = self.ml.predict(pid, features)
+        verdict = str(verdict).strip().lower()
+
         self.log.debug(
             f"[ML] PID={pid}  bucket_verdict={verdict}  score={score:.2f}"
         )
@@ -648,7 +644,7 @@ def run_demo():
       4. Wait for ML sliding-window consensus (3 x 1-sec buckets)
       5. Observe classification + action
     """
-    print(BANNER)
+    
     print("=" * 60)
     print("  DEMO MODE - Full Pipeline Simulation")
     print("  No real malware required.")
@@ -702,7 +698,7 @@ def run_monitor(target_exe: Optional[str] = None):
     Real monitoring mode. Optionally run static analysis on a PE first,
     then monitor continuously until Ctrl+C.
     """
-    print(BANNER)
+    
 
     rw = RansomWallSystem()
 

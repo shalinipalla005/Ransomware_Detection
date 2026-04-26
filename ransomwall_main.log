@@ -440,3 +440,219 @@
 
 16:23:52  INFO      RansomWall.Main  |  [SYSTEM] Shutting down ...
 16:24:03  INFO      RansomWall.Main  |  [SYSTEM] RansomWall stopped.
+20:51:53  INFO      RansomWall.Main  |  
++====================================================================+
+|       RansomWall - Layered Defense Against Cryptographic           |
+|             Ransomware Attacks using Machine Learning              |
+|       Shaukat & Ribeiro  |  IIT Delhi  |  COMSNETS 2018           |
++====================================================================+
+
+20:51:53  INFO      RansomWall.Main  |  [INIT] Initializing Trap Layer ...
+20:51:53  INFO      RansomWall.Main  |  [INIT] Initializing Dynamic Analysis Engine ...
+20:51:53  INFO      RansomWall.Main  |  [INIT] Initializing File Backup Layer ...
+20:51:53  INFO      RansomWall.Main  |  [INIT] Initializing Machine Learning Engine ...
+20:51:53  INFO      RansomWall.Main  |  [INIT] All layers initialized. System ready.
+20:51:53  INFO      RansomWall.Main  |  [SYSTEM] Starting monitoring layers ...
+20:51:53  INFO      RansomWall.Main  |  [INFO] Monitoring started. Press Ctrl+C to stop.
+
+20:51:54  INFO      RansomWall.Main  |  [DEMO] Injecting simulated ransomware events for PID=1337
+20:51:55  WARNING   RansomWall.Main  |  
+------------------------------------------------------------
+[ALERT] Suspicious process detected!
+        PID   : 1337
+        Name  : unknown
+        Score : 17.62  (threshold=6.0)
+------------------------------------------------------------
+20:51:55  DEBUG     RansomWall.Main  |  [ML] PID=1337  bucket_verdict=Suspicious  score=17.62
+20:51:56  DEBUG     RansomWall.Main  |  [ML] PID=1337  bucket_verdict=Suspicious  score=42.90
+20:51:56  INFO      RansomWall.Main  |  [DEMO] Simulation events injected for PID=1337.
+20:51:57  DEBUG     RansomWall.Main  |  [ML] PID=1337  bucket_verdict=Ransomware  score=49.58
+20:51:58  DEBUG     RansomWall.Main  |  [ML] PID=1337  bucket_verdict=Ransomware  score=49.58
+20:51:59  DEBUG     RansomWall.Main  |  [ML] PID=1337  bucket_verdict=Ransomware  score=49.58
+20:51:59  INFO      RansomWall.Main  |  
+------------------------------------------------------------
+[ML]     Process classified BENIGN  PID=1337
+         Deleting backup copies ...
+------------------------------------------------------------
+20:52:02  INFO      RansomWall.Main  |  [SYSTEM] Shutting down ...
+20:52:08  INFO      RansomWall.Main  |  [SYSTEM] RansomWall stopped.
+21:05:42  INFO      RansomWall.Main  |  
++====================================================================+
+|       RansomWall - Layered Defense Against Cryptographic           |
+|             Ransomware Attacks using Machine Learning              |
+|       Shaukat & Ribeiro  |  IIT Delhi  |  COMSNETS 2018           |
++====================================================================+
+
+21:05:42  INFO      RansomWall.Main  |  [INIT] Initializing Trap Layer ...
+21:05:42  INFO      RansomWall.Main  |  [INIT] Initializing Dynamic Analysis Engine ...
+21:05:42  INFO      RansomWall.Main  |  [INIT] Initializing File Backup Layer ...
+21:05:42  INFO      RansomWall.Main  |  [INIT] Initializing Machine Learning Engine ...
+21:05:42  INFO      RansomWall.Main  |  [INIT] All layers initialized. System ready.
+21:05:42  INFO      RansomWall.Main  |  [SYSTEM] Starting monitoring layers ...
+21:05:42  INFO      RansomWall.Main  |  [INFO] Monitoring started. Press Ctrl+C to stop.
+
+21:05:43  INFO      RansomWall.Main  |  [DEMO] Injecting simulated ransomware events for PID=1337
+21:05:44  WARNING   RansomWall.Main  |  
+------------------------------------------------------------
+[ALERT] Suspicious process detected!
+        PID   : 1337
+        Name  : unknown
+        Score : 17.62  (threshold=6.0)
+------------------------------------------------------------
+21:05:44  DEBUG     RansomWall.Main  |  [ML] PID=1337  bucket_verdict=suspicious  score=17.62
+21:05:45  DEBUG     RansomWall.Main  |  [ML] PID=1337  bucket_verdict=suspicious  score=38.25
+21:05:45  INFO      RansomWall.Main  |  [DEMO] Simulation events injected for PID=1337.
+21:05:46  DEBUG     RansomWall.Main  |  [ML] PID=1337  bucket_verdict=ransomware  score=49.58
+21:05:46  WARNING   RansomWall.Main  |  
+============================================================
+[ML]     RANSOMWARE CONFIRMED  PID=1337
+============================================================
+21:05:46  WARNING   RansomWall.Main  |  [ACTION] KILLED process PID=1337
+21:05:46  WARNING   RansomWall.Main  |  [ACTION] Restored 0 file(s) for PID=1337
+21:05:51  INFO      RansomWall.Main  |  [SYSTEM] Shutting down ...
+21:05:57  INFO      RansomWall.Main  |  [SYSTEM] RansomWall stopped.
+21:07:20  INFO      RansomWall.Main  |  [INIT] Initializing Trap Layer ...
+21:07:20  INFO      RansomWall.Main  |  [INIT] Initializing Dynamic Analysis Engine ...
+21:07:20  INFO      RansomWall.Main  |  [INIT] Initializing File Backup Layer ...
+21:07:20  INFO      RansomWall.Main  |  [INIT] Initializing Machine Learning Engine ...
+21:07:20  INFO      RansomWall.Main  |  [INIT] All layers initialized. System ready.
+21:07:20  INFO      RansomWall.Main  |  [SYSTEM] Starting monitoring layers ...
+21:07:20  INFO      RansomWall.Main  |  [INFO] Monitoring started. Press Ctrl+C to stop.
+
+21:07:21  INFO      RansomWall.Main  |  [DEMO] Injecting simulated ransomware events for PID=1337
+21:07:22  WARNING   RansomWall.Main  |  
+------------------------------------------------------------
+[ALERT] Suspicious process detected!
+        PID   : 1337
+        Name  : unknown
+        Score : 17.62  (threshold=6.0)
+------------------------------------------------------------
+21:07:22  DEBUG     RansomWall.Main  |  [ML] PID=1337  bucket_verdict=suspicious  score=17.62
+21:07:23  DEBUG     RansomWall.Main  |  [ML] PID=1337  bucket_verdict=suspicious  score=42.90
+21:07:24  INFO      RansomWall.Main  |  [DEMO] Simulation events injected for PID=1337.
+21:07:24  DEBUG     RansomWall.Main  |  [ML] PID=1337  bucket_verdict=ransomware  score=49.58
+21:07:24  WARNING   RansomWall.Main  |  
+============================================================
+[ML]     RANSOMWARE CONFIRMED  PID=1337
+============================================================
+21:07:24  WARNING   RansomWall.Main  |  [ACTION] KILLED process PID=1337
+21:07:24  WARNING   RansomWall.Main  |  [ACTION] Restored 0 file(s) for PID=1337
+21:07:30  INFO      RansomWall.Main  |  [SYSTEM] Shutting down ...
+21:07:35  INFO      RansomWall.Main  |  [SYSTEM] RansomWall stopped.
+21:13:02  INFO      RansomWall.Main  |  [INIT] Initializing Trap Layer ...
+21:13:02  INFO      RansomWall.Main  |  [INIT] Initializing Dynamic Analysis Engine ...
+21:13:02  INFO      RansomWall.Main  |  [INIT] Initializing File Backup Layer ...
+21:13:02  INFO      RansomWall.Main  |  [INIT] Initializing Machine Learning Engine ...
+21:13:02  INFO      RansomWall.Main  |  [INIT] All layers initialized. System ready.
+21:13:02  INFO      RansomWall.Main  |  [SYSTEM] Starting monitoring layers ...
+21:13:02  INFO      RansomWall.Main  |  [INFO] Monitoring started. Press Ctrl+C to stop.
+
+21:13:03  INFO      RansomWall.Main  |  [DEMO] Injecting simulated ransomware events for PID=1337
+21:13:04  WARNING   RansomWall.Main  |  
+------------------------------------------------------------
+[ALERT] Suspicious process detected!
+        PID   : 1337
+        Name  : unknown
+        Score : 17.62  (threshold=6.0)
+------------------------------------------------------------
+21:13:04  DEBUG     RansomWall.Main  |  [ML] PID=1337  bucket_verdict=suspicious  score=17.62
+21:13:05  DEBUG     RansomWall.Main  |  [ML] PID=1337  bucket_verdict=suspicious  score=44.45
+21:13:05  INFO      RansomWall.Main  |  [DEMO] Simulation events injected for PID=1337.
+21:13:06  DEBUG     RansomWall.Main  |  [ML] PID=1337  bucket_verdict=ransomware  score=49.58
+21:13:06  WARNING   RansomWall.Main  |  
+============================================================
+[ML]     RANSOMWARE CONFIRMED  PID=1337
+============================================================
+21:13:06  WARNING   RansomWall.Main  |  [ACTION] KILLED process PID=1337
+21:13:06  WARNING   RansomWall.Main  |  [ACTION] Restored 0 file(s) for PID=1337
+21:13:11  INFO      RansomWall.Main  |  [SYSTEM] Shutting down ...
+21:13:17  INFO      RansomWall.Main  |  [SYSTEM] RansomWall stopped.
+21:16:59  INFO      RansomWall.Main  |  [INIT] Initializing Trap Layer ...
+21:16:59  INFO      RansomWall.Main  |  [INIT] Initializing Dynamic Analysis Engine ...
+21:16:59  INFO      RansomWall.Main  |  [INIT] Initializing File Backup Layer ...
+21:16:59  INFO      RansomWall.Main  |  [INIT] Initializing Machine Learning Engine ...
+21:16:59  INFO      RansomWall.Main  |  [INIT] All layers initialized. System ready.
+21:16:59  INFO      RansomWall.Main  |  [SYSTEM] Starting monitoring layers ...
+21:17:00  INFO      RansomWall.Main  |  [INFO] Monitoring started. Press Ctrl+C to stop.
+
+21:17:01  INFO      RansomWall.Main  |  [DEMO] Injecting simulated ransomware events for PID=1337
+21:17:02  WARNING   RansomWall.Main  |  
+------------------------------------------------------------
+[ALERT] Suspicious process detected!
+        PID   : 1337
+        Name  : unknown
+        Score : 17.62  (threshold=6.0)
+------------------------------------------------------------
+21:17:02  DEBUG     RansomWall.Main  |  [ML] PID=1337  bucket_verdict=suspicious  score=17.62
+21:17:03  DEBUG     RansomWall.Main  |  [ML] PID=1337  bucket_verdict=suspicious  score=46.00
+21:17:03  INFO      RansomWall.Main  |  [DEMO] Simulation events injected for PID=1337.
+21:17:04  DEBUG     RansomWall.Main  |  [ML] PID=1337  bucket_verdict=suspicious  score=49.58
+21:17:05  DEBUG     RansomWall.Main  |  [ML] PID=1337  bucket_verdict=ransomware  score=49.58
+21:17:05  WARNING   RansomWall.Main  |  
+============================================================
+[ML]     RANSOMWARE CONFIRMED  PID=1337
+============================================================
+21:17:05  WARNING   RansomWall.Main  |  [ACTION] KILLED process PID=1337
+21:17:05  WARNING   RansomWall.Main  |  [ACTION] Restored 0 file(s) for PID=1337
+21:17:09  INFO      RansomWall.Main  |  [SYSTEM] Shutting down ...
+21:17:15  INFO      RansomWall.Main  |  [SYSTEM] RansomWall stopped.
+21:31:29  INFO      RansomWall.Main  |  [INIT] Initializing Trap Layer ...
+21:31:29  INFO      RansomWall.Main  |  [INIT] Initializing Dynamic Analysis Engine ...
+21:31:29  INFO      RansomWall.Main  |  [INIT] Initializing File Backup Layer ...
+21:31:29  INFO      RansomWall.Main  |  [INIT] Initializing Machine Learning Engine ...
+21:31:29  INFO      RansomWall.Main  |  [INIT] All layers initialized. System ready.
+21:31:29  INFO      RansomWall.Main  |  [SYSTEM] Starting monitoring layers ...
+21:31:30  INFO      RansomWall.Main  |  [INFO] Monitoring started. Press Ctrl+C to stop.
+
+21:31:31  INFO      RansomWall.Main  |  [DEMO] Injecting simulated ransomware events for PID=1337
+21:31:32  WARNING   RansomWall.Main  |  
+------------------------------------------------------------
+[ALERT] Suspicious process detected!
+        PID   : 1337
+        Name  : unknown
+        Score : 17.62  (threshold=6.0)
+------------------------------------------------------------
+21:31:32  DEBUG     RansomWall.Main  |  [ML] PID=1337  bucket_verdict=suspicious  score=17.62
+21:31:33  DEBUG     RansomWall.Main  |  [ML] PID=1337  bucket_verdict=suspicious  score=41.35
+21:31:33  INFO      RansomWall.Main  |  [DEMO] Simulation events injected for PID=1337.
+21:31:34  DEBUG     RansomWall.Main  |  [ML] PID=1337  bucket_verdict=suspicious  score=49.58
+21:31:35  DEBUG     RansomWall.Main  |  [ML] PID=1337  bucket_verdict=suspicious  score=49.58
+21:31:36  DEBUG     RansomWall.Main  |  [ML] PID=1337  bucket_verdict=ransomware  score=49.58
+21:31:36  WARNING   RansomWall.Main  |  
+============================================================
+[ML]     RANSOMWARE CONFIRMED  PID=1337
+============================================================
+21:31:36  WARNING   RansomWall.Main  |  [ACTION] KILLED process PID=1337
+21:31:36  WARNING   RansomWall.Main  |  [ACTION] Restored 0 file(s) for PID=1337
+21:31:39  INFO      RansomWall.Main  |  [SYSTEM] Shutting down ...
+21:31:45  INFO      RansomWall.Main  |  [SYSTEM] RansomWall stopped.
+21:56:59  INFO      RansomWall.Main  |  [INIT] Initializing Trap Layer ...
+21:56:59  INFO      RansomWall.Main  |  [INIT] Initializing Dynamic Analysis Engine ...
+21:56:59  INFO      RansomWall.Main  |  [INIT] Initializing File Backup Layer ...
+21:56:59  INFO      RansomWall.Main  |  [INIT] Initializing Machine Learning Engine ...
+21:56:59  INFO      RansomWall.Main  |  [INIT] All layers initialized. System ready.
+21:56:59  INFO      RansomWall.Main  |  [SYSTEM] Starting monitoring layers ...
+21:57:00  INFO      RansomWall.Main  |  [INFO] Monitoring started. Press Ctrl+C to stop.
+
+21:57:01  INFO      RansomWall.Main  |  [DEMO] Injecting simulated ransomware events for PID=1337
+21:57:02  WARNING   RansomWall.Main  |  
+------------------------------------------------------------
+[ALERT] Suspicious process detected!
+        PID   : 1337
+        Name  : unknown
+        Score : 17.62  (threshold=6.0)
+------------------------------------------------------------
+21:57:02  DEBUG     RansomWall.Main  |  [ML] PID=1337  bucket_verdict=suspicious  score=17.62
+21:57:03  DEBUG     RansomWall.Main  |  [ML] PID=1337  bucket_verdict=suspicious  score=42.90
+21:57:03  INFO      RansomWall.Main  |  [DEMO] Simulation events injected for PID=1337.
+21:57:04  DEBUG     RansomWall.Main  |  [ML] PID=1337  bucket_verdict=suspicious  score=49.58
+21:57:05  DEBUG     RansomWall.Main  |  [ML] PID=1337  bucket_verdict=suspicious  score=49.58
+21:57:06  DEBUG     RansomWall.Main  |  [ML] PID=1337  bucket_verdict=ransomware  score=49.58
+21:57:06  WARNING   RansomWall.Main  |  
+============================================================
+[ML]     RANSOMWARE CONFIRMED  PID=1337
+============================================================
+21:57:06  WARNING   RansomWall.Main  |  [ACTION] KILLED process PID=1337
+21:57:06  WARNING   RansomWall.Main  |  [ACTION] Restored 0 file(s) for PID=1337
+21:57:09  INFO      RansomWall.Main  |  [SYSTEM] Shutting down ...
+21:57:15  INFO      RansomWall.Main  |  [SYSTEM] RansomWall stopped.

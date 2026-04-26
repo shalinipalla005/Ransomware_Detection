@@ -939,3 +939,398 @@
 2026-04-26 16:24:03,932 [RANSOMWALL] INFO  [TrapLayer] Shutdown complete.
 2026-04-26 16:24:03,938 [RANSOMWALL] INFO  [DynamicEngine] Stopped.
 2026-04-26 16:24:03,939 [RANSOMWALL] INFO  [SYSTEM] RansomWall stopped.
+2026-04-26 20:51:53,009 [RANSOMWALL] INFO  [INIT] Initializing Dynamic Analysis Engine ...
+2026-04-26 20:51:53,011 [RANSOMWALL] INFO  [DynamicEngine] Initialized. Watch dirs: [WindowsPath('C:/Users/varsh/AppData/Local/Temp/rw_demo_w6t8cwsn')]
+2026-04-26 20:51:53,012 [RANSOMWALL] INFO  [INIT] Initializing File Backup Layer ...
+2026-04-26 20:51:53,013 [RANSOMWALL] INFO  [BackupLayer] Initialized. Backup dir: C:\Users\varsh\AppData\Local\Temp\rw_demo_w6t8cwsn\backup
+2026-04-26 20:51:53,013 [RANSOMWALL] INFO  [INIT] Initializing Machine Learning Engine ...
+2026-04-26 20:51:53,014 [RANSOMWALL] INFO  [MLModel] Initialized with RuleBasedClassifier
+2026-04-26 20:51:53,014 [RANSOMWALL] INFO  [INIT] All layers initialized. System ready.
+2026-04-26 20:51:53,015 [RANSOMWALL] INFO  [SYSTEM] Starting monitoring layers ...
+2026-04-26 20:51:53,531 [RANSOMWALL] INFO  [HoneyFileManager] Deployed 28 honey files across 1 directories.
+2026-04-26 20:51:53,534 [RANSOMWALL] INFO  [TrapLayer] Watchdog monitoring 1 dirs.
+2026-04-26 20:51:53,535 [RANSOMWALL] INFO  [BehaviorDetector] Started polling loop.
+2026-04-26 20:51:53,537 [RANSOMWALL] INFO  [TrapLayer] All subsystems active. Monitoring…
+2026-04-26 20:51:53,544 [RANSOMWALL] INFO  [DynamicEngine] Watchdog monitoring 1 directories.
+2026-04-26 20:51:53,548 [RANSOMWALL] INFO  [INFO] Monitoring started. Press Ctrl+C to stop.
+
+2026-04-26 20:51:54,554 [RANSOMWALL] INFO  [DEMO] Injecting simulated ransomware events for PID=1337
+2026-04-26 20:51:54,555 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:21:54.555564+00:00", "pid": 1337, "operation": "honey_file_write", "target": "decoy_report.docx", "feature": "honey_file_write", "score": 2.0, "detail": "injected-test"}
+2026-04-26 20:51:54,606 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:21:54.606349+00:00", "pid": 1337, "operation": "honey_file_rename", "target": "decoy_report.docx", "feature": "honey_file_rename", "score": 4.0, "detail": "injected-test"}
+2026-04-26 20:51:54,657 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:21:54.657427+00:00", "pid": 1337, "operation": "crypto_api_usage", "target": "rsaenh.dll,bcrypt.dll,crypt32.dll", "feature": "crypto_api_usage", "score": 5.5, "detail": "injected-test"}
+2026-04-26 20:51:54,708 [RANSOMWALL] INFO  [FeatureCollector] PID 1337 (unknown) FLAGGED SUSPICIOUS  score=8.5  features=['honey_file_write', 'honey_file_rename', 'crypto_api_usage', 'safe_mode_disabled']
+2026-04-26 20:51:54,708 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:21:54.708883+00:00", "pid": 1337, "operation": "safe_mode_disabled", "target": "bcdedit.exe", "feature": "safe_mode_disabled", "score": 8.5, "detail": "injected-test"}
+2026-04-26 20:51:54,759 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:21:54.759426+00:00", "pid": 1337, "operation": "vss_deletion", "target": "vssadmin.exe delete shadows /all", "feature": "vss_deletion", "score": 11.5, "detail": "injected-test"}
+2026-04-26 20:51:54,810 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:21:54.810415+00:00", "pid": 1337, "operation": "entropy_spike", "target": "important_data.xlsx", "feature": "entropy_spike", "score": 13.0, "detail": "injected-test"}
+2026-04-26 20:51:54,861 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:21:54.861213+00:00", "pid": 1337, "operation": "registry_persistence", "target": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run", "feature": "registry_persistence", "score": 14.0, "detail": "injected-test"}
+2026-04-26 20:51:54,912 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:21:54.912279+00:00", "pid": 1337, "operation": "honey_file_delete", "target": "decoy_photo.jpg", "feature": "honey_file_delete", "score": 16.0, "detail": "injected-test"}
+2026-04-26 20:51:54,963 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:21:54.963285+00:00", "pid": 1337, "operation": "honey_dir_modified", "target": "C:\\Users\\victim\\Documents", "feature": "honey_dir_modified", "score": 17.5, "detail": "injected-test"}
+2026-04-26 20:51:55,548 [RANSOMWALL] WARNING  
+------------------------------------------------------------
+[ALERT] Suspicious process detected!
+        PID   : 1337
+        Name  : unknown
+        Score : 17.62  (threshold=6.0)
+------------------------------------------------------------
+2026-04-26 20:51:55,588 [RANSOMWALL] DEBUG  [ML] PID=1337  bucket_verdict=Suspicious  score=17.62
+2026-04-26 20:51:56,289 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 20:51:56,306 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 20:51:56,324 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 20:51:56,340 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 20:51:56,357 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 20:51:56,374 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 20:51:56,390 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 20:51:56,407 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 20:51:56,423 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 20:51:56,441 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 20:51:56,457 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 20:51:56,474 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 20:51:56,490 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 20:51:56,507 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 20:51:56,523 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 20:51:56,539 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 20:51:56,549 [RANSOMWALL] DEBUG  [ML] PID=1337  bucket_verdict=Suspicious  score=42.90
+2026-04-26 20:51:56,555 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 20:51:56,572 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 20:51:56,589 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 20:51:56,606 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 20:51:56,835 [RANSOMWALL] INFO  [DEMO] Simulation events injected for PID=1337.
+2026-04-26 20:51:57,549 [RANSOMWALL] WARNING  [MLModel] RANSOMWARE CONFIRMED  PID=1337  window=[1, 1, 1]  scores=[43.64, 61.64, 66.14]
+2026-04-26 20:51:57,549 [RANSOMWALL] DEBUG  [ML] PID=1337  bucket_verdict=Ransomware  score=49.58
+2026-04-26 20:51:58,549 [RANSOMWALL] WARNING  [MLModel] RANSOMWARE CONFIRMED  PID=1337  window=[1, 1, 1]  scores=[61.64, 66.14, 66.14]
+2026-04-26 20:51:58,549 [RANSOMWALL] DEBUG  [ML] PID=1337  bucket_verdict=Ransomware  score=49.58
+2026-04-26 20:51:59,549 [RANSOMWALL] WARNING  [MLModel] RANSOMWARE CONFIRMED  PID=1337  window=[1, 1, 1]  scores=[66.14, 66.14, 66.14]
+2026-04-26 20:51:59,550 [RANSOMWALL] DEBUG  [ML] PID=1337  bucket_verdict=Ransomware  score=49.58
+2026-04-26 20:51:59,550 [RANSOMWALL] INFO  
+------------------------------------------------------------
+[ML]     Process classified BENIGN  PID=1337
+         Deleting backup copies ...
+------------------------------------------------------------
+2026-04-26 20:51:59,551 [RANSOMWALL] INFO  [CLEANUP] PID=1337  removed 0 backup entries.
+2026-04-26 20:52:02,846 [RANSOMWALL] INFO  [SYSTEM] Shutting down ...
+2026-04-26 20:52:03,551 [RANSOMWALL] INFO  [TrapLayer] Shutting down…
+2026-04-26 20:52:08,595 [RANSOMWALL] INFO  [HoneyFileManager] Cleanup complete.
+2026-04-26 20:52:08,596 [RANSOMWALL] INFO  [TrapLayer] Shutdown complete.
+2026-04-26 20:52:08,598 [RANSOMWALL] INFO  [DynamicEngine] Stopped.
+2026-04-26 20:52:08,598 [RANSOMWALL] INFO  [SYSTEM] RansomWall stopped.
+2026-04-26 21:05:42,073 [RANSOMWALL] INFO  [INIT] Initializing Dynamic Analysis Engine ...
+2026-04-26 21:05:42,075 [RANSOMWALL] INFO  [DynamicEngine] Initialized. Watch dirs: [WindowsPath('C:/Users/varsh/AppData/Local/Temp/rw_demo_sama7vy9')]
+2026-04-26 21:05:42,076 [RANSOMWALL] INFO  [INIT] Initializing File Backup Layer ...
+2026-04-26 21:05:42,077 [RANSOMWALL] INFO  [BackupLayer] Initialized. Backup dir: C:\Users\varsh\AppData\Local\Temp\rw_demo_sama7vy9\backup
+2026-04-26 21:05:42,078 [RANSOMWALL] INFO  [INIT] Initializing Machine Learning Engine ...
+2026-04-26 21:05:42,079 [RANSOMWALL] INFO  [MLModel] Initialized with RuleBasedClassifier
+2026-04-26 21:05:42,079 [RANSOMWALL] INFO  [INIT] All layers initialized. System ready.
+2026-04-26 21:05:42,080 [RANSOMWALL] INFO  [SYSTEM] Starting monitoring layers ...
+2026-04-26 21:05:42,507 [RANSOMWALL] INFO  [HoneyFileManager] Deployed 28 honey files across 1 directories.
+2026-04-26 21:05:42,509 [RANSOMWALL] INFO  [TrapLayer] Watchdog monitoring 1 dirs.
+2026-04-26 21:05:42,510 [RANSOMWALL] INFO  [BehaviorDetector] Started polling loop.
+2026-04-26 21:05:42,511 [RANSOMWALL] INFO  [TrapLayer] All subsystems active. Monitoring…
+2026-04-26 21:05:42,516 [RANSOMWALL] INFO  [DynamicEngine] Watchdog monitoring 1 directories.
+2026-04-26 21:05:42,517 [RANSOMWALL] INFO  [INFO] Monitoring started. Press Ctrl+C to stop.
+
+2026-04-26 21:05:43,542 [RANSOMWALL] INFO  [DEMO] Injecting simulated ransomware events for PID=1337
+2026-04-26 21:05:43,544 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:35:43.543924+00:00", "pid": 1337, "operation": "honey_file_write", "target": "decoy_report.docx", "feature": "honey_file_write", "score": 2.0, "detail": "injected-test"}
+2026-04-26 21:05:43,595 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:35:43.595042+00:00", "pid": 1337, "operation": "honey_file_rename", "target": "decoy_report.docx", "feature": "honey_file_rename", "score": 4.0, "detail": "injected-test"}
+2026-04-26 21:05:43,646 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:35:43.646160+00:00", "pid": 1337, "operation": "crypto_api_usage", "target": "rsaenh.dll,bcrypt.dll,crypt32.dll", "feature": "crypto_api_usage", "score": 5.5, "detail": "injected-test"}
+2026-04-26 21:05:43,697 [RANSOMWALL] INFO  [FeatureCollector] PID 1337 (unknown) FLAGGED SUSPICIOUS  score=8.5  features=['honey_file_write', 'honey_file_rename', 'crypto_api_usage', 'safe_mode_disabled']
+2026-04-26 21:05:43,698 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:35:43.698480+00:00", "pid": 1337, "operation": "safe_mode_disabled", "target": "bcdedit.exe", "feature": "safe_mode_disabled", "score": 8.5, "detail": "injected-test"}
+2026-04-26 21:05:43,749 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:35:43.749820+00:00", "pid": 1337, "operation": "vss_deletion", "target": "vssadmin.exe delete shadows /all", "feature": "vss_deletion", "score": 11.5, "detail": "injected-test"}
+2026-04-26 21:05:43,800 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:35:43.800890+00:00", "pid": 1337, "operation": "entropy_spike", "target": "important_data.xlsx", "feature": "entropy_spike", "score": 13.0, "detail": "injected-test"}
+2026-04-26 21:05:43,851 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:35:43.851912+00:00", "pid": 1337, "operation": "registry_persistence", "target": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run", "feature": "registry_persistence", "score": 14.0, "detail": "injected-test"}
+2026-04-26 21:05:43,903 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:35:43.903113+00:00", "pid": 1337, "operation": "honey_file_delete", "target": "decoy_photo.jpg", "feature": "honey_file_delete", "score": 16.0, "detail": "injected-test"}
+2026-04-26 21:05:43,954 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:35:43.954171+00:00", "pid": 1337, "operation": "honey_dir_modified", "target": "C:\\Users\\victim\\Documents", "feature": "honey_dir_modified", "score": 17.5, "detail": "injected-test"}
+2026-04-26 21:05:44,522 [RANSOMWALL] WARNING  
+------------------------------------------------------------
+[ALERT] Suspicious process detected!
+        PID   : 1337
+        Name  : unknown
+        Score : 17.62  (threshold=6.0)
+------------------------------------------------------------
+2026-04-26 21:05:44,563 [RANSOMWALL] DEBUG  [ML] PID=1337  bucket_verdict=suspicious  score=17.62
+2026-04-26 21:05:45,283 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:05:45,300 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:05:45,317 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:05:45,333 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:05:45,350 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:05:45,366 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:05:45,383 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:05:45,400 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:05:45,416 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:05:45,433 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:05:45,449 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:05:45,466 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:05:45,482 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:05:45,523 [RANSOMWALL] DEBUG  [ML] PID=1337  bucket_verdict=suspicious  score=38.25
+2026-04-26 21:05:45,528 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:05:45,545 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:05:45,561 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:05:45,577 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:05:45,594 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:05:45,610 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:05:45,627 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:05:45,832 [RANSOMWALL] INFO  [DEMO] Simulation events injected for PID=1337.
+2026-04-26 21:05:46,523 [RANSOMWALL] WARNING  [MLModel] RANSOMWARE CONFIRMED  PID=1337  window=[1, 1, 1]  scores=[43.64, 61.64, 66.14]
+2026-04-26 21:05:46,525 [RANSOMWALL] DEBUG  [ML] PID=1337  bucket_verdict=ransomware  score=49.58
+2026-04-26 21:05:46,526 [RANSOMWALL] WARNING  
+============================================================
+[ML]     RANSOMWARE CONFIRMED  PID=1337
+============================================================
+2026-04-26 21:05:46,750 [RANSOMWALL] WARNING  [ACTION] KILLED process PID=1337
+2026-04-26 21:05:46,751 [RANSOMWALL] INFO  [BackupLayer] No backed-up files found for PID 1337.
+2026-04-26 21:05:46,751 [RANSOMWALL] WARNING  [ACTION] Restored 0 file(s) for PID=1337
+2026-04-26 21:05:51,841 [RANSOMWALL] INFO  [SYSTEM] Shutting down ...
+2026-04-26 21:05:52,526 [RANSOMWALL] INFO  [TrapLayer] Shutting down…
+2026-04-26 21:05:57,552 [RANSOMWALL] INFO  [HoneyFileManager] Cleanup complete.
+2026-04-26 21:05:57,553 [RANSOMWALL] INFO  [TrapLayer] Shutdown complete.
+2026-04-26 21:05:57,554 [RANSOMWALL] INFO  [DynamicEngine] Stopped.
+2026-04-26 21:05:57,554 [RANSOMWALL] INFO  [SYSTEM] RansomWall stopped.
+2026-04-26 21:07:20,242 [RANSOMWALL] INFO  [INIT] Initializing Dynamic Analysis Engine ...
+2026-04-26 21:07:20,243 [RANSOMWALL] INFO  [DynamicEngine] Initialized. Watch dirs: [WindowsPath('C:/Users/varsh/AppData/Local/Temp/rw_demo_vga_xjlw')]
+2026-04-26 21:07:20,246 [RANSOMWALL] INFO  [INIT] Initializing File Backup Layer ...
+2026-04-26 21:07:20,248 [RANSOMWALL] INFO  [BackupLayer] Initialized. Backup dir: C:\Users\varsh\AppData\Local\Temp\rw_demo_vga_xjlw\backup
+2026-04-26 21:07:20,248 [RANSOMWALL] INFO  [INIT] Initializing Machine Learning Engine ...
+2026-04-26 21:07:20,250 [RANSOMWALL] INFO  [MLModel] Initialized with RuleBasedClassifier
+2026-04-26 21:07:20,251 [RANSOMWALL] INFO  [INIT] All layers initialized. System ready.
+2026-04-26 21:07:20,251 [RANSOMWALL] INFO  [SYSTEM] Starting monitoring layers ...
+2026-04-26 21:07:20,734 [RANSOMWALL] INFO  [HoneyFileManager] Deployed 28 honey files across 1 directories.
+2026-04-26 21:07:20,736 [RANSOMWALL] INFO  [TrapLayer] Watchdog monitoring 1 dirs.
+2026-04-26 21:07:20,737 [RANSOMWALL] INFO  [BehaviorDetector] Started polling loop.
+2026-04-26 21:07:20,738 [RANSOMWALL] INFO  [TrapLayer] All subsystems active. Monitoring…
+2026-04-26 21:07:20,739 [RANSOMWALL] INFO  [DynamicEngine] Watchdog monitoring 1 directories.
+2026-04-26 21:07:20,745 [RANSOMWALL] INFO  [INFO] Monitoring started. Press Ctrl+C to stop.
+
+2026-04-26 21:07:21,746 [RANSOMWALL] INFO  [DEMO] Injecting simulated ransomware events for PID=1337
+2026-04-26 21:07:21,747 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:37:21.747371+00:00", "pid": 1337, "operation": "honey_file_write", "target": "decoy_report.docx", "feature": "honey_file_write", "score": 2.0, "detail": "injected-test"}
+2026-04-26 21:07:21,798 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:37:21.798418+00:00", "pid": 1337, "operation": "honey_file_rename", "target": "decoy_report.docx", "feature": "honey_file_rename", "score": 4.0, "detail": "injected-test"}
+2026-04-26 21:07:21,850 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:37:21.849888+00:00", "pid": 1337, "operation": "crypto_api_usage", "target": "rsaenh.dll,bcrypt.dll,crypt32.dll", "feature": "crypto_api_usage", "score": 5.5, "detail": "injected-test"}
+2026-04-26 21:07:21,901 [RANSOMWALL] INFO  [FeatureCollector] PID 1337 (unknown) FLAGGED SUSPICIOUS  score=8.5  features=['honey_file_write', 'honey_file_rename', 'crypto_api_usage', 'safe_mode_disabled']
+2026-04-26 21:07:21,902 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:37:21.902669+00:00", "pid": 1337, "operation": "safe_mode_disabled", "target": "bcdedit.exe", "feature": "safe_mode_disabled", "score": 8.5, "detail": "injected-test"}
+2026-04-26 21:07:21,954 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:37:21.954055+00:00", "pid": 1337, "operation": "vss_deletion", "target": "vssadmin.exe delete shadows /all", "feature": "vss_deletion", "score": 11.5, "detail": "injected-test"}
+2026-04-26 21:07:22,005 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:37:22.005522+00:00", "pid": 1337, "operation": "entropy_spike", "target": "important_data.xlsx", "feature": "entropy_spike", "score": 13.0, "detail": "injected-test"}
+2026-04-26 21:07:22,056 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:37:22.056814+00:00", "pid": 1337, "operation": "registry_persistence", "target": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run", "feature": "registry_persistence", "score": 14.0, "detail": "injected-test"}
+2026-04-26 21:07:22,108 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:37:22.108091+00:00", "pid": 1337, "operation": "honey_file_delete", "target": "decoy_photo.jpg", "feature": "honey_file_delete", "score": 16.0, "detail": "injected-test"}
+2026-04-26 21:07:22,159 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:37:22.159175+00:00", "pid": 1337, "operation": "honey_dir_modified", "target": "C:\\Users\\victim\\Documents", "feature": "honey_dir_modified", "score": 17.5, "detail": "injected-test"}
+2026-04-26 21:07:22,746 [RANSOMWALL] WARNING  
+------------------------------------------------------------
+[ALERT] Suspicious process detected!
+        PID   : 1337
+        Name  : unknown
+        Score : 17.62  (threshold=6.0)
+------------------------------------------------------------
+2026-04-26 21:07:22,748 [RANSOMWALL] DEBUG  [ML] PID=1337  bucket_verdict=suspicious  score=17.62
+2026-04-26 21:07:23,458 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:07:23,475 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:07:23,492 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:07:23,508 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:07:23,526 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:07:23,543 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:07:23,561 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:07:23,577 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:07:23,593 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:07:23,611 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:07:23,627 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:07:23,644 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:07:23,696 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:07:23,712 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:07:23,729 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:07:23,746 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:07:23,747 [RANSOMWALL] DEBUG  [ML] PID=1337  bucket_verdict=suspicious  score=42.90
+2026-04-26 21:07:23,763 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:07:23,779 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:07:23,796 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:07:23,813 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:07:24,017 [RANSOMWALL] INFO  [DEMO] Simulation events injected for PID=1337.
+2026-04-26 21:07:24,747 [RANSOMWALL] WARNING  [MLModel] RANSOMWARE CONFIRMED  PID=1337  window=[1, 1, 1]  scores=[43.64, 61.64, 66.14]
+2026-04-26 21:07:24,748 [RANSOMWALL] DEBUG  [ML] PID=1337  bucket_verdict=ransomware  score=49.58
+2026-04-26 21:07:24,748 [RANSOMWALL] WARNING  
+============================================================
+[ML]     RANSOMWARE CONFIRMED  PID=1337
+============================================================
+2026-04-26 21:07:24,959 [RANSOMWALL] WARNING  [ACTION] KILLED process PID=1337
+2026-04-26 21:07:24,959 [RANSOMWALL] INFO  [BackupLayer] No backed-up files found for PID 1337.
+2026-04-26 21:07:24,960 [RANSOMWALL] WARNING  [ACTION] Restored 0 file(s) for PID=1337
+2026-04-26 21:07:30,025 [RANSOMWALL] INFO  [SYSTEM] Shutting down ...
+2026-04-26 21:07:30,750 [RANSOMWALL] INFO  [TrapLayer] Shutting down…
+2026-04-26 21:07:35,794 [RANSOMWALL] INFO  [HoneyFileManager] Cleanup complete.
+2026-04-26 21:07:35,795 [RANSOMWALL] INFO  [TrapLayer] Shutdown complete.
+2026-04-26 21:07:35,796 [RANSOMWALL] INFO  [DynamicEngine] Stopped.
+2026-04-26 21:07:35,797 [RANSOMWALL] INFO  [SYSTEM] RansomWall stopped.
+2026-04-26 21:13:02,153 [RANSOMWALL] INFO  [DynamicEngine] Initialized. Watch dirs: [WindowsPath('C:/Users/varsh/AppData/Local/Temp/rw_demo_jjeeqtip')]
+2026-04-26 21:13:02,155 [RANSOMWALL] INFO  [BackupLayer] Initialized. Backup dir: C:\Users\varsh\AppData\Local\Temp\rw_demo_jjeeqtip\backup
+2026-04-26 21:13:02,155 [RANSOMWALL] INFO  [MLModel] Initialized with RuleBasedClassifier
+2026-04-26 21:13:02,626 [RANSOMWALL] INFO  [HoneyFileManager] Deployed 28 honey files across 1 directories.
+2026-04-26 21:13:02,629 [RANSOMWALL] INFO  [TrapLayer] Watchdog monitoring 1 dirs.
+2026-04-26 21:13:02,631 [RANSOMWALL] INFO  [BehaviorDetector] Started polling loop.
+2026-04-26 21:13:02,632 [RANSOMWALL] INFO  [TrapLayer] All subsystems active. Monitoring…
+2026-04-26 21:13:02,640 [RANSOMWALL] INFO  [DynamicEngine] Watchdog monitoring 1 directories.
+2026-04-26 21:13:03,651 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:43:03.651405+00:00", "pid": 1337, "operation": "honey_file_write", "target": "decoy_report.docx", "feature": "honey_file_write", "score": 2.0, "detail": "injected-test"}
+2026-04-26 21:13:03,712 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:43:03.712337+00:00", "pid": 1337, "operation": "honey_file_rename", "target": "decoy_report.docx", "feature": "honey_file_rename", "score": 4.0, "detail": "injected-test"}
+2026-04-26 21:13:03,763 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:43:03.763239+00:00", "pid": 1337, "operation": "crypto_api_usage", "target": "rsaenh.dll,bcrypt.dll,crypt32.dll", "feature": "crypto_api_usage", "score": 5.5, "detail": "injected-test"}
+2026-04-26 21:13:03,814 [RANSOMWALL] INFO  [FeatureCollector] PID 1337 (unknown) FLAGGED SUSPICIOUS  score=8.5  features=['honey_file_write', 'honey_file_rename', 'crypto_api_usage', 'safe_mode_disabled']
+2026-04-26 21:13:03,815 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:43:03.815352+00:00", "pid": 1337, "operation": "safe_mode_disabled", "target": "bcdedit.exe", "feature": "safe_mode_disabled", "score": 8.5, "detail": "injected-test"}
+2026-04-26 21:13:03,866 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:43:03.866381+00:00", "pid": 1337, "operation": "vss_deletion", "target": "vssadmin.exe delete shadows /all", "feature": "vss_deletion", "score": 11.5, "detail": "injected-test"}
+2026-04-26 21:13:03,918 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:43:03.918124+00:00", "pid": 1337, "operation": "entropy_spike", "target": "important_data.xlsx", "feature": "entropy_spike", "score": 13.0, "detail": "injected-test"}
+2026-04-26 21:13:03,969 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:43:03.969610+00:00", "pid": 1337, "operation": "registry_persistence", "target": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run", "feature": "registry_persistence", "score": 14.0, "detail": "injected-test"}
+2026-04-26 21:13:04,022 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:43:04.021865+00:00", "pid": 1337, "operation": "honey_file_delete", "target": "decoy_photo.jpg", "feature": "honey_file_delete", "score": 16.0, "detail": "injected-test"}
+2026-04-26 21:13:04,073 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:43:04.073717+00:00", "pid": 1337, "operation": "honey_dir_modified", "target": "C:\\Users\\victim\\Documents", "feature": "honey_dir_modified", "score": 17.5, "detail": "injected-test"}
+2026-04-26 21:13:05,377 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:13:05,394 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:13:05,410 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:13:05,427 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:13:05,443 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:13:05,460 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:13:05,477 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:13:05,493 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:13:05,509 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:13:05,526 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:13:05,543 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:13:05,559 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:13:05,576 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:13:05,593 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:13:05,609 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:13:05,626 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:13:05,642 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:13:05,659 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:13:05,676 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:13:05,693 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:13:06,647 [RANSOMWALL] WARNING  [MLModel] RANSOMWARE CONFIRMED  PID=1337  window=[1, 1, 1]  scores=[43.64, 61.64, 66.14]
+2026-04-26 21:13:06,863 [RANSOMWALL] INFO  [BackupLayer] No backed-up files found for PID 1337.
+2026-04-26 21:13:12,651 [RANSOMWALL] INFO  [TrapLayer] Shutting down…
+2026-04-26 21:13:17,700 [RANSOMWALL] INFO  [HoneyFileManager] Cleanup complete.
+2026-04-26 21:13:17,701 [RANSOMWALL] INFO  [TrapLayer] Shutdown complete.
+2026-04-26 21:13:17,702 [RANSOMWALL] INFO  [DynamicEngine] Stopped.
+2026-04-26 21:16:59,441 [RANSOMWALL] INFO  [DynamicEngine] Initialized. Watch dirs: [WindowsPath('C:/Users/varsh/AppData/Local/Temp/rw_demo_f6joeaaj')]
+2026-04-26 21:16:59,443 [RANSOMWALL] INFO  [BackupLayer] Initialized. Backup dir: C:\Users\varsh\AppData\Local\Temp\rw_demo_f6joeaaj\backup
+2026-04-26 21:16:59,514 [RANSOMWALL] INFO  [MLModel] Loaded trained GBT model from rw_model.pkl
+2026-04-26 21:16:59,515 [RANSOMWALL] INFO  [MLModel] Initialized with GradientBoostingClassifier
+2026-04-26 21:17:00,019 [RANSOMWALL] INFO  [HoneyFileManager] Deployed 28 honey files across 1 directories.
+2026-04-26 21:17:00,022 [RANSOMWALL] INFO  [TrapLayer] Watchdog monitoring 1 dirs.
+2026-04-26 21:17:00,024 [RANSOMWALL] INFO  [BehaviorDetector] Started polling loop.
+2026-04-26 21:17:00,027 [RANSOMWALL] INFO  [TrapLayer] All subsystems active. Monitoring…
+2026-04-26 21:17:00,030 [RANSOMWALL] INFO  [DynamicEngine] Watchdog monitoring 1 directories.
+2026-04-26 21:17:01,036 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:47:01.036014+00:00", "pid": 1337, "operation": "honey_file_write", "target": "decoy_report.docx", "feature": "honey_file_write", "score": 2.0, "detail": "injected-test"}
+2026-04-26 21:17:01,087 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:47:01.087419+00:00", "pid": 1337, "operation": "honey_file_rename", "target": "decoy_report.docx", "feature": "honey_file_rename", "score": 4.0, "detail": "injected-test"}
+2026-04-26 21:17:01,138 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:47:01.138475+00:00", "pid": 1337, "operation": "crypto_api_usage", "target": "rsaenh.dll,bcrypt.dll,crypt32.dll", "feature": "crypto_api_usage", "score": 5.5, "detail": "injected-test"}
+2026-04-26 21:17:01,189 [RANSOMWALL] INFO  [FeatureCollector] PID 1337 (unknown) FLAGGED SUSPICIOUS  score=8.5  features=['honey_file_write', 'honey_file_rename', 'crypto_api_usage', 'safe_mode_disabled']
+2026-04-26 21:17:01,190 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:47:01.190489+00:00", "pid": 1337, "operation": "safe_mode_disabled", "target": "bcdedit.exe", "feature": "safe_mode_disabled", "score": 8.5, "detail": "injected-test"}
+2026-04-26 21:17:01,242 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:47:01.242020+00:00", "pid": 1337, "operation": "vss_deletion", "target": "vssadmin.exe delete shadows /all", "feature": "vss_deletion", "score": 11.5, "detail": "injected-test"}
+2026-04-26 21:17:01,293 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:47:01.293036+00:00", "pid": 1337, "operation": "entropy_spike", "target": "important_data.xlsx", "feature": "entropy_spike", "score": 13.0, "detail": "injected-test"}
+2026-04-26 21:17:01,344 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:47:01.344252+00:00", "pid": 1337, "operation": "registry_persistence", "target": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run", "feature": "registry_persistence", "score": 14.0, "detail": "injected-test"}
+2026-04-26 21:17:01,395 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:47:01.395621+00:00", "pid": 1337, "operation": "honey_file_delete", "target": "decoy_photo.jpg", "feature": "honey_file_delete", "score": 16.0, "detail": "injected-test"}
+2026-04-26 21:17:01,447 [RANSOMWALL] WARNING  {"ts": "2026-04-26T15:47:01.446993+00:00", "pid": 1337, "operation": "honey_dir_modified", "target": "C:\\Users\\victim\\Documents", "feature": "honey_dir_modified", "score": 17.5, "detail": "injected-test"}
+2026-04-26 21:17:02,744 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:17:02,760 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:17:02,776 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:17:02,793 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:17:02,809 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:17:02,826 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:17:02,843 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:17:02,859 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:17:02,875 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:17:02,892 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:17:02,908 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:17:02,924 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:17:02,941 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:17:02,957 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:17:02,974 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:17:02,990 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:17:03,007 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:17:03,023 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:17:03,039 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:17:03,056 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:17:05,036 [RANSOMWALL] WARNING  [MLModel] RANSOMWARE CONFIRMED  PID=1337  window=[1, 1, 1]  scores=[9.94, 10.0, 10.0]
+2026-04-26 21:17:05,279 [RANSOMWALL] INFO  [BackupLayer] No backed-up files found for PID 1337.
+2026-04-26 21:17:10,038 [RANSOMWALL] INFO  [TrapLayer] Shutting down…
+2026-04-26 21:17:15,066 [RANSOMWALL] INFO  [HoneyFileManager] Cleanup complete.
+2026-04-26 21:17:15,066 [RANSOMWALL] INFO  [TrapLayer] Shutdown complete.
+2026-04-26 21:17:15,068 [RANSOMWALL] INFO  [DynamicEngine] Stopped.
+2026-04-26 21:31:29,686 [RANSOMWALL] INFO  [DynamicEngine] Initialized. Watch dirs: [WindowsPath('C:/Users/varsh/AppData/Local/Temp/rw_demo_hvx2vi84')]
+2026-04-26 21:31:29,688 [RANSOMWALL] INFO  [BackupLayer] Initialized. Backup dir: C:\Users\varsh\AppData\Local\Temp\rw_demo_hvx2vi84\backup
+2026-04-26 21:31:29,694 [RANSOMWALL] INFO  [MLModel] Loaded trained GBT model from rw_model.pkl
+2026-04-26 21:31:29,694 [RANSOMWALL] INFO  [MLModel] Initialized with GradientBoostingClassifier
+2026-04-26 21:31:30,174 [RANSOMWALL] INFO  [HoneyFileManager] Deployed 28 honey files across 1 directories.
+2026-04-26 21:31:30,176 [RANSOMWALL] INFO  [TrapLayer] Watchdog monitoring 1 dirs.
+2026-04-26 21:31:30,178 [RANSOMWALL] INFO  [BehaviorDetector] Started polling loop.
+2026-04-26 21:31:30,180 [RANSOMWALL] INFO  [TrapLayer] All subsystems active. Monitoring…
+2026-04-26 21:31:30,183 [RANSOMWALL] INFO  [DynamicEngine] Watchdog monitoring 1 directories.
+2026-04-26 21:31:31,187 [RANSOMWALL] WARNING  {"ts": "2026-04-26T16:01:31.187701+00:00", "pid": 1337, "operation": "honey_file_write", "target": "decoy_report.docx", "feature": "honey_file_write", "score": 2.0, "detail": "injected-test"}
+2026-04-26 21:31:31,238 [RANSOMWALL] WARNING  {"ts": "2026-04-26T16:01:31.238711+00:00", "pid": 1337, "operation": "honey_file_rename", "target": "decoy_report.docx", "feature": "honey_file_rename", "score": 4.0, "detail": "injected-test"}
+2026-04-26 21:31:31,290 [RANSOMWALL] WARNING  {"ts": "2026-04-26T16:01:31.290425+00:00", "pid": 1337, "operation": "crypto_api_usage", "target": "rsaenh.dll,bcrypt.dll,crypt32.dll", "feature": "crypto_api_usage", "score": 5.5, "detail": "injected-test"}
+2026-04-26 21:31:31,342 [RANSOMWALL] INFO  [FeatureCollector] PID 1337 (unknown) FLAGGED SUSPICIOUS  score=8.5  features=['honey_file_write', 'honey_file_rename', 'crypto_api_usage', 'safe_mode_disabled']
+2026-04-26 21:31:31,343 [RANSOMWALL] WARNING  {"ts": "2026-04-26T16:01:31.342926+00:00", "pid": 1337, "operation": "safe_mode_disabled", "target": "bcdedit.exe", "feature": "safe_mode_disabled", "score": 8.5, "detail": "injected-test"}
+2026-04-26 21:31:31,394 [RANSOMWALL] WARNING  {"ts": "2026-04-26T16:01:31.394068+00:00", "pid": 1337, "operation": "vss_deletion", "target": "vssadmin.exe delete shadows /all", "feature": "vss_deletion", "score": 11.5, "detail": "injected-test"}
+2026-04-26 21:31:31,482 [RANSOMWALL] WARNING  {"ts": "2026-04-26T16:01:31.481929+00:00", "pid": 1337, "operation": "entropy_spike", "target": "important_data.xlsx", "feature": "entropy_spike", "score": 13.0, "detail": "injected-test"}
+2026-04-26 21:31:31,533 [RANSOMWALL] WARNING  {"ts": "2026-04-26T16:01:31.533559+00:00", "pid": 1337, "operation": "registry_persistence", "target": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run", "feature": "registry_persistence", "score": 14.0, "detail": "injected-test"}
+2026-04-26 21:31:31,585 [RANSOMWALL] WARNING  {"ts": "2026-04-26T16:01:31.584989+00:00", "pid": 1337, "operation": "honey_file_delete", "target": "decoy_photo.jpg", "feature": "honey_file_delete", "score": 16.0, "detail": "injected-test"}
+2026-04-26 21:31:31,636 [RANSOMWALL] WARNING  {"ts": "2026-04-26T16:01:31.636479+00:00", "pid": 1337, "operation": "honey_dir_modified", "target": "C:\\Users\\victim\\Documents", "feature": "honey_dir_modified", "score": 17.5, "detail": "injected-test"}
+2026-04-26 21:31:32,938 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:31:32,955 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:31:32,972 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:31:32,988 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:31:33,005 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:31:33,022 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:31:33,040 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:31:33,057 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:31:33,073 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:31:33,090 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:31:33,107 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:31:33,123 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:31:33,140 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:31:33,157 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:31:33,174 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:31:33,191 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:31:33,207 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:31:33,224 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:31:33,240 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:31:33,256 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:31:36,189 [RANSOMWALL] WARNING  [MLModel] RANSOMWARE CONFIRMED PID=1337 window=[1, 1, 1] scores=[10.0, 10.0, 10.0]
+2026-04-26 21:31:36,386 [RANSOMWALL] INFO  [BackupLayer] No backed-up files found for PID 1337.
+2026-04-26 21:31:40,190 [RANSOMWALL] INFO  [TrapLayer] Shutting down…
+2026-04-26 21:31:45,224 [RANSOMWALL] INFO  [HoneyFileManager] Cleanup complete.
+2026-04-26 21:31:45,224 [RANSOMWALL] INFO  [TrapLayer] Shutdown complete.
+2026-04-26 21:31:45,226 [RANSOMWALL] INFO  [DynamicEngine] Stopped.
+2026-04-26 21:56:59,548 [RANSOMWALL] INFO  [DynamicEngine] Initialized. Watch dirs: [WindowsPath('C:/Users/varsh/AppData/Local/Temp/rw_demo_4kbgq5oj')]
+2026-04-26 21:56:59,549 [RANSOMWALL] INFO  [BackupLayer] Initialized. Backup dir: C:\Users\varsh\AppData\Local\Temp\rw_demo_4kbgq5oj\backup
+2026-04-26 21:56:59,556 [RANSOMWALL] INFO  [MLModel] Loaded trained GBT model from rw_model.pkl
+2026-04-26 21:56:59,557 [RANSOMWALL] INFO  [MLModel] Initialized with GradientBoostingClassifier
+2026-04-26 21:57:00,139 [RANSOMWALL] INFO  [HoneyFileManager] Deployed 28 honey files across 1 directories.
+2026-04-26 21:57:00,142 [RANSOMWALL] INFO  [TrapLayer] Watchdog monitoring 1 dirs.
+2026-04-26 21:57:00,144 [RANSOMWALL] INFO  [BehaviorDetector] Started polling loop.
+2026-04-26 21:57:00,145 [RANSOMWALL] INFO  [TrapLayer] All subsystems active. Monitoring…
+2026-04-26 21:57:00,150 [RANSOMWALL] INFO  [DynamicEngine] Watchdog monitoring 1 directories.
+2026-04-26 21:57:01,156 [RANSOMWALL] WARNING  {"ts": "2026-04-26T16:27:01.156143+00:00", "pid": 1337, "operation": "honey_file_write", "target": "decoy_report.docx", "feature": "honey_file_write", "score": 2.0, "detail": "injected-test"}
+2026-04-26 21:57:01,207 [RANSOMWALL] WARNING  {"ts": "2026-04-26T16:27:01.207318+00:00", "pid": 1337, "operation": "honey_file_rename", "target": "decoy_report.docx", "feature": "honey_file_rename", "score": 4.0, "detail": "injected-test"}
+2026-04-26 21:57:01,258 [RANSOMWALL] WARNING  {"ts": "2026-04-26T16:27:01.258669+00:00", "pid": 1337, "operation": "crypto_api_usage", "target": "rsaenh.dll,bcrypt.dll,crypt32.dll", "feature": "crypto_api_usage", "score": 5.5, "detail": "injected-test"}
+2026-04-26 21:57:01,310 [RANSOMWALL] INFO  [FeatureCollector] PID 1337 (unknown) FLAGGED SUSPICIOUS  score=8.5  features=['honey_file_write', 'honey_file_rename', 'crypto_api_usage', 'safe_mode_disabled']
+2026-04-26 21:57:01,310 [RANSOMWALL] WARNING  {"ts": "2026-04-26T16:27:01.310699+00:00", "pid": 1337, "operation": "safe_mode_disabled", "target": "bcdedit.exe", "feature": "safe_mode_disabled", "score": 8.5, "detail": "injected-test"}
+2026-04-26 21:57:01,362 [RANSOMWALL] WARNING  {"ts": "2026-04-26T16:27:01.362040+00:00", "pid": 1337, "operation": "vss_deletion", "target": "vssadmin.exe delete shadows /all", "feature": "vss_deletion", "score": 11.5, "detail": "injected-test"}
+2026-04-26 21:57:01,413 [RANSOMWALL] WARNING  {"ts": "2026-04-26T16:27:01.413385+00:00", "pid": 1337, "operation": "entropy_spike", "target": "important_data.xlsx", "feature": "entropy_spike", "score": 13.0, "detail": "injected-test"}
+2026-04-26 21:57:01,464 [RANSOMWALL] WARNING  {"ts": "2026-04-26T16:27:01.464792+00:00", "pid": 1337, "operation": "registry_persistence", "target": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run", "feature": "registry_persistence", "score": 14.0, "detail": "injected-test"}
+2026-04-26 21:57:01,516 [RANSOMWALL] WARNING  {"ts": "2026-04-26T16:27:01.516016+00:00", "pid": 1337, "operation": "honey_file_delete", "target": "decoy_photo.jpg", "feature": "honey_file_delete", "score": 16.0, "detail": "injected-test"}
+2026-04-26 21:57:01,568 [RANSOMWALL] WARNING  {"ts": "2026-04-26T16:27:01.567703+00:00", "pid": 1337, "operation": "honey_dir_modified", "target": "C:\\Users\\victim\\Documents", "feature": "honey_dir_modified", "score": 17.5, "detail": "injected-test"}
+2026-04-26 21:57:02,870 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:57:02,887 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:57:02,904 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:57:02,920 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:57:02,964 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:57:02,981 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:57:02,997 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:57:03,014 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:57:03,030 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:57:03,047 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:57:03,064 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:57:03,081 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:57:03,098 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:57:03,115 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:57:03,132 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:57:03,149 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:57:03,165 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:57:03,182 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:57:03,198 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:57:03,215 [RANSOMWALL] INFO  [DynamicEngine] Fingerprint mismatch  PID=1337  data.docx -> data.encrypted
+2026-04-26 21:57:06,158 [RANSOMWALL] WARNING  [MLModel] RANSOMWARE CONFIRMED PID=1337 window=[1, 1, 1] scores=[10.0, 10.0, 10.0]
+2026-04-26 21:57:06,367 [RANSOMWALL] INFO  [BackupLayer] No backed-up files found for PID 1337.
+2026-04-26 21:57:10,158 [RANSOMWALL] INFO  [TrapLayer] Shutting down…
+2026-04-26 21:57:15,181 [RANSOMWALL] INFO  [HoneyFileManager] Cleanup complete.
+2026-04-26 21:57:15,182 [RANSOMWALL] INFO  [TrapLayer] Shutdown complete.
+2026-04-26 21:57:15,184 [RANSOMWALL] INFO  [DynamicEngine] Stopped.
