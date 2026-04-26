@@ -16,7 +16,6 @@
 
 #define ENTROPY_MIN_FILE_SIZE       64
 
-
 #define ENTROPY_THRESHOLD_X100      720    
 
 
