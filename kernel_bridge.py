@@ -1,73 +1,3 @@
-"""
-RansomWall: Kernel-Mode Bridge (User-Mode Side)
-================================================
-Paper §IV-A / §IV-B — COMSNETS 2018
-
-This module replaces the watchdog-based filesystem monitoring in
-ransomwall_dynamic_layer.py with a REAL kernel driver connection.
-
-Architecture:
-  [Kernel: RansomWallFilter.sys]
-      |  (FltSendMessage -> named port \\RansomWallPort)
-      v
-  [THIS FILE: kernel_bridge.py]   <-- user-mode bridge
-      |  (inject_irp / inject_test_event)
-      v
-  [DynamicEngine / TrapLayer / FeatureCollector]
-      |
-      v
-  [MLModel -> Ransomware/Benign verdict]
-      |  (RW_CMD_KILL_PID / RW_CMD_WHITELIST_PID)
-      v
-  [Kernel: RansomWallFilter.sys] (terminates process)
-
-The kernel driver sends RANSOMWALL_IRP_MESSAGE structs over the
-communication port (\\RansomWallPort).  This bridge unpacks them and
-calls the appropriate Python layer methods, mirroring the paper's
-Figure 2 logical workflow exactly:
-
-  Paper §IV-A:
-    "IRP Filter registers with File System I/O Manager during RansomWall
-     initialization for receiving IRP messages.  During file operations,
-     I/O Manager forwards generated IRP messages to the registered IRP
-     Filter.  The IRP Filter forwards IRP messages, which are created for
-     file operations on only user data files, to Dynamic and Trap Layers
-     for feature computation."
-
-Message struct layout matches RANSOMWALL_IRP_MESSAGE in RansomWallFilter.c
-(#pragma pack(1)):
-
-  Offset   Size   Field
-  ------   ----   -----
-  0        4      MessageSize      (ULONG)
-  4        4      Version          (ULONG)
-  8        4      ProcessId        (ULONG)
-  12       4      ThreadId         (ULONG)
-  16       520    ProcessName      (WCHAR[260])
-  536      4      Operation        (ULONG / RANSOMWALL_OP_TYPE)
-  540      8      Timestamp        (LARGE_INTEGER / INT64)
-  548      4      FileSize         (ULONG)
-  552      1040   FilePath         (WCHAR[520])
-  1592     32     FileExtension    (USHORT[16] -> WCHAR[16])
-  1624     1040   DestPath         (WCHAR[520])
-  2664     32     DestExtension    (USHORT[16] -> WCHAR[16])
-  2696     4      EntropyX100      (ULONG)
-  2700     1      IsTargetExtension (BOOLEAN)
-  2701     1      IsRansomExtension (BOOLEAN)
-  2702     1      FingerprintMismatch (BOOLEAN)
-  Total    2703 bytes  (packed)
-
-Requirements:
-  - Windows OS with RansomWallFilter.sys loaded and running
-  - pip install pywin32
-  - Run as Administrator (required to open the filter communication port)
-
-Usage (replaces watchdog in main.py):
-  bridge = KernelBridge(dynamic_engine=engine, trap_layer=trap)
-  bridge.start()   # connects to kernel driver; begins receiving IRPs
-  ...
-  bridge.stop()
-"""
 
 import ctypes
 import struct
@@ -79,16 +9,14 @@ from typing import Optional, Callable
 
 log = logging.getLogger("RansomWall.KernelBridge")
 
-# ── Win32 imports (optional — only needed at runtime on Windows) ──────────────
 try:
-    import win32file       # noqa: F401  (imported for side-effects on some builds)
-    import win32security   # noqa: F401
+    import win32file       
+    import win32security  
     WIN32_AVAILABLE = True
 except ImportError:
     WIN32_AVAILABLE = False
     log.debug("[KernelBridge] pywin32 not installed.  Run: pip install pywin32")
 
-# ── Filter Communication API (fltlib.dll) ─────────────────────────────────────
 try:
     _fltlib = ctypes.WinDLL("fltlib.dll")
     FLTLIB_AVAILABLE = True
@@ -99,14 +27,8 @@ except (OSError, AttributeError):
                 "RansomWallFilter.sys must be installed and running.")
 
 
-# ════════════════════════════════════════════════════════════════════════════ #
-# PROTOCOL CONSTANTS  (must match RansomWallFilter.c exactly)
-# ════════════════════════════════════════════════════════════════════════════ #
-
-# Named communication port (paper §IV-A)
 RANSOMWALL_PORT_WNAME = "\\RansomWallPort"
 
-# IRP operation types  (mirrors RANSOMWALL_OP_TYPE enum in .c)
 RW_OP_UNKNOWN       = 0
 RW_OP_READ          = 1   # IRP_MJ_READ
 RW_OP_WRITE         = 2   # IRP_MJ_WRITE
@@ -129,59 +51,17 @@ OP_NAMES = {
     RW_OP_ENTROPY_SPIKE: "entropy_spike",
 }
 
-# Control commands sent FROM user-mode TO kernel driver
 RW_CMD_SUSPEND_PID   = 1   # Pause monitoring for a PID
 RW_CMD_KILL_PID      = 2   # Request ZwTerminateProcess for a PID
 RW_CMD_WHITELIST_PID = 3   # Mark PID as benign; stop sending IRPs for it
 RW_CMD_STATUS        = 4   # Query driver statistics
 
 
-# ════════════════════════════════════════════════════════════════════════════ #
-# IRP MESSAGE STRUCT
-# Matches RANSOMWALL_IRP_MESSAGE (pragma pack 1) in RansomWallFilter.c
-# ════════════════════════════════════════════════════════════════════════════ #
-
-#  Field               C type          Size   Python fmt
-#  MessageSize         ULONG           4      I
-#  Version             ULONG           4      I
-#  ProcessId           ULONG           4      I
-#  ThreadId            ULONG           4      I
-#  ProcessName         WCHAR[260]      520    520s   (UTF-16-LE)
-#  Operation           ULONG           4      I
-#  Timestamp           LARGE_INTEGER   8      q
-#  FileSize            ULONG           4      I
-#  FilePath            WCHAR[520]      1040   1040s  (UTF-16-LE)
-#  FileExtension       USHORT[16]      32     32s    (UTF-16-LE, 16 chars)
-#  DestPath            WCHAR[520]      1040   1040s  (UTF-16-LE)
-#  DestExtension       USHORT[16]      32     32s    (UTF-16-LE, 16 chars)
-#  EntropyX100         ULONG           4      I
-#  IsTargetExtension   BOOLEAN         1      B
-#  IsRansomExtension   BOOLEAN         1      B
-#  FingerprintMismatch BOOLEAN         1      B
-#  Total (packed)                      2703
-
 MSG_FORMAT = "<IIIi520sIqI1040s32s1040s32sIBBB"
-MSG_SIZE   = struct.calcsize(MSG_FORMAT)   # should equal 2703
-
-# FILTER_MESSAGE_HEADER prepended by FltGetMessage:
-#   ULONG  ReplyLength  (4)
-#   ULONGLONG MessageId (8)
-# Total header = 16 bytes (aligned), but the API uses ULONG+ULONGLONG = 12
-# In practice WDK aligns it to 8 bytes -> 16 bytes.  We use 16 for safety.
+MSG_SIZE   = struct.calcsize(MSG_FORMAT) 
 FILTER_MSG_HEADER_SIZE = 16
 
-
-# ════════════════════════════════════════════════════════════════════════════ #
-# PARSED MESSAGE
-# ════════════════════════════════════════════════════════════════════════════ #
-
 class IRPMessage:
-    """
-    Parsed RANSOMWALL_IRP_MESSAGE from the kernel driver.
-
-    Attributes map directly to what DynamicEngine.inject_irp() and
-    TrapLayer.inject_test_event() expect (paper §IV-A, Figure 2).
-    """
     __slots__ = [
         "message_size", "version", "process_id", "thread_id",
         "process_name", "operation", "timestamp", "file_size",
@@ -192,7 +72,6 @@ class IRPMessage:
 
     @classmethod
     def from_bytes(cls, data: bytes) -> "IRPMessage":
-        """Unpack a raw kernel message buffer into an IRPMessage."""
         if len(data) < MSG_SIZE:
             raise ValueError(
                 f"Kernel message too short: got {len(data)} bytes, "
@@ -236,15 +115,12 @@ class IRPMessage:
         msg.fingerprint_mismatch = bool(fp_mismatch)
         return msg
 
-    # ── Derived helpers ───────────────────────────────────────────────────────
 
     def op_name(self) -> str:
-        """Human-readable operation name (matches DynamicEngine inject_irp op names)."""
         return OP_NAMES.get(self.operation, "unknown")
 
     @property
     def entropy(self) -> float:
-        """Shannon entropy as a float in [0.0, 8.0]."""
         return self.entropy_x100 / 100.0
 
     def __repr__(self) -> str:
@@ -257,16 +133,6 @@ class IRPMessage:
             f"fp_mismatch={self.fingerprint_mismatch})"
         )
 
-
-# ════════════════════════════════════════════════════════════════════════════ #
-# COMMAND STRUCT  (user-mode -> kernel)
-# Matches RANSOMWALL_COMMAND in RansomWallFilter.c
-#   ULONG Command   (4)
-#   ULONG TargetPid (4)
-#   WCHAR Reserved[64] (128)
-# Total = 136 bytes
-# ════════════════════════════════════════════════════════════════════════════ #
-
 CMD_FORMAT = "<II128s"
 CMD_SIZE   = struct.calcsize(CMD_FORMAT)
 
@@ -276,41 +142,12 @@ def _build_command(command: int, target_pid: int) -> bytes:
     return struct.pack(CMD_FORMAT, command, target_pid, b"\x00" * 128)
 
 
-# ════════════════════════════════════════════════════════════════════════════ #
-# KERNEL BRIDGE
-# ════════════════════════════════════════════════════════════════════════════ #
 
 class KernelBridge:
-    """
-    Connects to the RansomWallFilter.sys kernel minifilter via the Filter
-    Manager communication port (\\RansomWallPort).
-
-    Paper §IV-A:
-      "IRP Filter registers with File System I/O Manager during RansomWall
-       initialization for receiving IRP messages."
-
-    Receives RANSOMWALL_IRP_MESSAGE structs via FilterGetMessage (blocking)
-    and dispatches them to:
-      • DynamicEngine.inject_irp()         — file I/O counts (§III-D-3 a-e)
-      • DynamicEngine state (entropy/fp)    — §III-D-3 f-g
-      • TrapLayer.inject_test_event()       — honey-file and behavior features
-                                              (§III-D-2 a, b, c, d, e)
-
-    Also sends control commands back to the kernel:
-      • kill_pid(pid)       → RW_CMD_KILL_PID      (ZwTerminateProcess)
-      • whitelist_pid(pid)  → RW_CMD_WHITELIST_PID
-    """
-
     def __init__(self,
                  dynamic_engine=None,
                  trap_layer=None,
                  on_irp_callback: Optional[Callable] = None):
-        """
-        Args:
-          dynamic_engine:   ransomwall_dynamic_layer.DynamicEngine instance
-          trap_layer:       ransomwall_trap_layer.TrapLayer instance
-          on_irp_callback:  optional extra per-IRP callback(IRPMessage)
-        """
         self._dynamic  = dynamic_engine
         self._trap     = trap_layer
         self._callback = on_irp_callback
@@ -330,18 +167,9 @@ class KernelBridge:
             "ransom_renames":  0,
         }
 
-    # ════════════════════════════════════════════════════════════════════════ #
-    # LIFECYCLE
-    # ════════════════════════════════════════════════════════════════════════ #
 
     def start(self) -> bool:
-        """
-        Connect to the kernel driver's communication port and start the
-        IRP receive thread.
-
-        Returns True on success; False if the driver is not loaded,
-        fltlib.dll is unavailable, or we are not on Windows.
-        """
+        
         if not FLTLIB_AVAILABLE:
             log.error("[KernelBridge] fltlib.dll unavailable.  "
                       "Is RansomWallFilter.sys loaded and running?")
@@ -365,7 +193,6 @@ class KernelBridge:
         return True
 
     def stop(self):
-        """Disconnect from the kernel driver and shut down the receive thread."""
         self._running = False
         if self._port:
             try:
@@ -377,27 +204,9 @@ class KernelBridge:
             self._thread.join(timeout=5)
         log.info(f"[KernelBridge] Stopped.  Stats: {self._stats}")
 
-    # ════════════════════════════════════════════════════════════════════════ #
-    # CONNECTION  (FilterConnectCommunicationPort)
-    # ════════════════════════════════════════════════════════════════════════ #
 
     def _connect(self) -> bool:
-        """
-        Open a handle to the kernel driver's communication port using
-        FilterConnectCommunicationPort (fltlib.dll).
-
-        This is the user-mode counterpart of FltCreateCommunicationPort
-        called by the kernel driver during DriverEntry.
-
-        HRESULT FilterConnectCommunicationPort(
-            LPCWSTR                  lpPortName,
-            DWORD                    dwOptions,
-            LPCVOID                  lpContext,
-            WORD                     wSizeOfContext,
-            LPSECURITY_ATTRIBUTES    lpSecurityAttributes,
-            HANDLE*                  hPort
-        );
-        """
+        
         try:
             _fltlib.FilterConnectCommunicationPort.restype = ctypes.HRESULT
             _fltlib.FilterConnectCommunicationPort.argtypes = [
@@ -435,32 +244,9 @@ class KernelBridge:
             log.error(f"[KernelBridge] _connect() exception: {exc}")
             return False
 
-    # ════════════════════════════════════════════════════════════════════════ #
-    # IRP RECEIVE LOOP  (FilterGetMessage)
-    # Paper §IV-A: blocking receive of kernel IRP messages
-    # ════════════════════════════════════════════════════════════════════════ #
 
     def _receive_loop(self):
-        """
-        Continuously receive RANSOMWALL_IRP_MESSAGE structs from the kernel
-        driver using FilterGetMessage (synchronous / blocking).
-
-        Paper §IV-A:
-          "File System activities are monitored by analyzing IRPs (I/O Request
-           Packets) which are generated for each file operation.  IRP Filter
-           registers with File System I/O Manager during RansomWall
-           initialization for receiving IRP messages."
-
-        The FILTER_MESSAGE_HEADER (16 bytes) is prepended by the Filter
-        Manager and must be skipped to reach the RANSOMWALL_IRP_MESSAGE payload.
-
-        HRESULT FilterGetMessage(
-            HANDLE                  hPort,
-            PFILTER_MESSAGE_HEADER  lpMessageBuffer,
-            DWORD                   dwMessageBufferSize,
-            LPOVERLAPPED            lpOverlapped     <- NULL = synchronous
-        );
-        """
+        
         try:
             _fltlib.FilterGetMessage.restype = ctypes.HRESULT
             _fltlib.FilterGetMessage.argtypes = [
@@ -473,7 +259,6 @@ class KernelBridge:
             log.error(f"[KernelBridge] Cannot bind FilterGetMessage: {exc}")
             return
 
-        # Allocate receive buffer: FILTER_MESSAGE_HEADER + IRP payload + headroom
         buf_total = FILTER_MSG_HEADER_SIZE + MSG_SIZE + 64
         buf = ctypes.create_string_buffer(buf_total)
 
@@ -488,13 +273,12 @@ class KernelBridge:
                     self._port,
                     buf,
                     buf_total,
-                    None,   # synchronous — blocks until the kernel sends a message
+                    None,   
                 )
 
                 if hr != 0:
                     if not self._running:
                         break
-                    # ERROR_OPERATION_ABORTED (0x800703E3) is normal on close
                     hresult_code = hr & 0xFFFFFFFF
                     if hresult_code not in (0x800703E3, 0x80070006):
                         log.debug(
@@ -504,7 +288,6 @@ class KernelBridge:
                     time.sleep(0.005)
                     continue
 
-                # Strip the FILTER_MESSAGE_HEADER to get the IRP payload
                 payload = bytes(buf)[FILTER_MSG_HEADER_SIZE:]
                 self._dispatch(payload)
                 self._stats["received"] += 1
@@ -517,30 +300,9 @@ class KernelBridge:
 
         log.debug("[KernelBridge] Receive loop exited.")
 
-    # ════════════════════════════════════════════════════════════════════════ #
-    # IRP DISPATCH  (kernel -> Python layer routing)
-    # Paper §IV-A Figure 2: "IRP Filter forwards IRP messages ... to Dynamic
-    # and Trap Layers for feature computation."
-    # ════════════════════════════════════════════════════════════════════════ #
 
     def _dispatch(self, payload: bytes) -> None:
-        """
-        Parse the raw payload into an IRPMessage and route it to the
-        appropriate Python layer method.
-
-        Routing table (paper §III-D):
-          §III-D-3 a  dir_query count        → DynamicEngine "dir_query"
-          §III-D-3 b  file_read count         → DynamicEngine "read"
-          §III-D-3 c  file_write count        → DynamicEngine "write"
-          §III-D-3 d  rename (data→non-data)  → DynamicEngine "rename"
-          §III-D-3 e  file_delete count        → DynamicEngine "delete"
-          §III-D-3 f  fingerprint mismatch     → DynamicEngine "rename" +
-                                                  TrapLayer (if honey file)
-          §III-D-3 g  entropy spike            → DynamicEngine "write"  +
-                                                  TrapLayer entropy_spike
-          §III-D-2 a  honey file write/rename/delete → TrapLayer
-          §III-D-2 b  crypto API (ransom rename)     → TrapLayer
-        """
+        
         try:
             msg = IRPMessage.from_bytes(payload)
         except Exception as exc:
@@ -550,13 +312,9 @@ class KernelBridge:
 
         log.debug(f"[KernelBridge] {msg}")
 
-        # ── Step 1: Route to DynamicEngine (paper §III-D-3) ──────────────────
         self._dispatch_to_dynamic(msg)
 
-        # ── Step 2: Route to TrapLayer (paper §III-D-2) ──────────────────────
         self._dispatch_to_trap(msg)
-
-        # ── Step 3: Optional caller-supplied callback ─────────────────────────
         if self._callback:
             try:
                 self._callback(msg)
@@ -564,35 +322,24 @@ class KernelBridge:
                 log.debug(f"[KernelBridge] Callback error: {exc}")
 
     def _dispatch_to_dynamic(self, msg: IRPMessage) -> None:
-        """
-        Forward the IRP to DynamicEngine.inject_irp() for IRP count and
-        derived feature computation.
-
-        Paper §III-D-3: Read, Write, Rename, Delete, Dir-query counts;
-        fingerprint-mismatch and entropy-spike flags.
-        """
+        
         if not self._dynamic:
             return
 
         op = msg.operation
 
-        # §III-D-3 a — Directory listing queries
         if op == RW_OP_DIR_QUERY:
             self._dynamic.inject_irp("dir_query", msg.process_id,
                                      path=msg.file_path)
 
-        # §III-D-3 b — File reads
         elif op == RW_OP_READ:
             self._dynamic.inject_irp("read", msg.process_id,
                                      path=msg.file_path)
 
-        # §III-D-3 c / g — File writes (+ entropy spike check by kernel)
         elif op in (RW_OP_WRITE, RW_OP_ENTROPY_SPIKE):
             self._dynamic.inject_irp("write", msg.process_id,
                                      path=msg.file_path)
             if op == RW_OP_ENTROPY_SPIKE or msg.entropy > 7.2:
-                # Kernel already computed the entropy; mark entropy spike
-                # directly on the ProcessState without re-reading the file.
                 with self._dynamic._lock:
                     if msg.process_id in self._dynamic._states:
                         self._dynamic._states[msg.process_id].entropy_spike_count += 1
@@ -604,7 +351,6 @@ class KernelBridge:
                     f"entropy={msg.entropy:.2f}  file=...{msg.file_path[-60:]}"
                 )
 
-        # §III-D-3 d — File rename (data → non-data extension)
         elif op == RW_OP_RENAME:
             self._dynamic.inject_irp("rename", msg.process_id,
                                      path=msg.file_path,
@@ -618,18 +364,14 @@ class KernelBridge:
                     f"...{msg.file_path[-50:]}"
                 )
 
-        # §III-D-3 e — File deletes
         elif op == RW_OP_DELETE:
             self._dynamic.inject_irp("delete", msg.process_id,
                                      path=msg.file_path)
 
-        # §III-D-3 f — Fingerprint / magic-byte mismatch reported by kernel
         elif op == RW_OP_FINGERPRINT:
-            # Treat as a rename-like event so rename_count is incremented
             self._dynamic.inject_irp("rename", msg.process_id,
                                      path=msg.file_path,
                                      dst_path=msg.dest_path)
-            # Also directly increment the fingerprint_mismatch counter
             with self._dynamic._lock:
                 if msg.process_id in self._dynamic._states:
                     self._dynamic._states[msg.process_id].fingerprint_mismatch += 1
@@ -642,12 +384,10 @@ class KernelBridge:
                 f"file=...{msg.file_path[-50:]}"
             )
 
-        # §III-D-3 — IRP_MJ_CREATE: track as a read (file opened for access)
         elif op == RW_OP_CREATE and msg.is_target_extension:
             self._dynamic.inject_irp("read", msg.process_id,
                                      path=msg.file_path)
 
-        # Also record inline fingerprint_mismatch flag on any IRP type
         if msg.fingerprint_mismatch and op not in (RW_OP_FINGERPRINT,):
             with self._dynamic._lock:
                 if msg.process_id in self._dynamic._states:
@@ -662,26 +402,10 @@ class KernelBridge:
             )
 
     def _dispatch_to_trap(self, msg: IRPMessage) -> None:
-        """
-        Forward the IRP to TrapLayer for honey-file and behavioral-trap
-        feature recording.
-
-        Paper §III-D-2:
-          a. Honey file/directory modification (write, rename, delete)
-          b. Suspicious Windows Crypto API usage  (inferred from ransom rename)
-          c. Disabling safe-mode boot (bcdedit)   — handled by BehaviorDetector
-          d. Deletion of Volume Shadow Copies      — handled by BehaviorDetector
-          e. Suspicious Registry modifications     — handled by BehaviorDetector
-
-        The kernel driver can directly identify honey files because the user-
-        mode bridge told it which paths to watch (via the communication port
-        at startup).  When the driver sets IsTargetExtension=TRUE and the
-        path matches a honey file, we fire the appropriate trap feature.
-        """
+        
         if not self._trap:
             return
 
-        # Determine whether this path touches a honey file / honey directory
         is_honey_file = (
             hasattr(self._trap, "honey_mgr") and
             bool(msg.file_path) and
@@ -693,8 +417,6 @@ class KernelBridge:
             self._trap.honey_mgr.is_honey(msg.dest_path)
         )
 
-        # §III-D-2 a  — Honey file WRITE (paper: "Write … operations on Honey
-        #               Files/Directories are tracked for malicious activities")
         if msg.operation in (RW_OP_WRITE, RW_OP_ENTROPY_SPIKE, RW_OP_CREATE):
             if is_honey_file:
                 self._trap.inject_test_event(
@@ -709,7 +431,6 @@ class KernelBridge:
                     f"file={msg.file_path}"
                 )
 
-        # §III-D-2 a  — Honey file RENAME
         elif msg.operation == RW_OP_RENAME:
             if is_honey_file or is_honey_dest:
                 self._trap.inject_test_event(
@@ -724,13 +445,7 @@ class KernelBridge:
                     f"{msg.file_path} -> {msg.dest_path}"
                 )
 
-            # §III-D-2 b  — Ransomware-extension rename implies Crypto API use
-            # "Most Ransomware variants use standard Windows Cryptographic APIs
-            #  for encryption.  Massive use of these APIs can be considered
-            #  suspicious." (paper §III-D-2b)
-            # The kernel cannot easily detect DLL loads, but a rename to a
-            # known ransomware extension strongly implies encryption was just
-            # performed using a Crypto API.
+            
             if msg.is_ransom_extension:
                 self._trap.inject_test_event(
                     "crypto_api_usage",
@@ -743,7 +458,6 @@ class KernelBridge:
                     f"reason=ransom_rename({msg.dest_extension!r})"
                 )
 
-        # §III-D-2 a  — Honey file DELETE
         elif msg.operation == RW_OP_DELETE:
             if is_honey_file:
                 self._trap.inject_test_event(
@@ -758,9 +472,6 @@ class KernelBridge:
                     f"file={msg.file_path}"
                 )
 
-        # §III-D-3 g / §III-D-2 — Entropy spike also fires trap entropy_spike
-        # "Entropy of data buffer in memory modified during file write operation
-        #  to a value around 8 indicates encryption possibility." (§III-D-3g)
         if msg.operation == RW_OP_ENTROPY_SPIKE or (
             msg.operation == RW_OP_WRITE and msg.entropy > 7.2
         ):
@@ -770,7 +481,6 @@ class KernelBridge:
                 target=msg.file_path,
             )
 
-        # Honey directory modification (any non-read IRP inside honey dir)
         if (msg.operation not in (RW_OP_READ, RW_OP_DIR_QUERY, RW_OP_CREATE) and
                 hasattr(self._trap, "honey_mgr")):
             for hdir in self._trap.honey_mgr.honey_dirs:
@@ -782,26 +492,9 @@ class KernelBridge:
                     )
                     break
 
-    # ════════════════════════════════════════════════════════════════════════ #
-    # CONTROL COMMANDS (user-mode -> kernel)
-    # ════════════════════════════════════════════════════════════════════════ #
 
     def _send_command(self, command: int, target_pid: int) -> bool:
-        """
-        Send a RANSOMWALL_COMMAND to the kernel driver via FilterSendMessage.
-
-        Paper §IV-A: Used to trigger ZwTerminateProcess (kill) or to
-        whitelist a benign PID so the driver stops sending IRPs for it.
-
-        HRESULT FilterSendMessage(
-            HANDLE  hPort,
-            LPVOID  lpInBuffer,
-            DWORD   dwInBufferSize,
-            LPVOID  lpOutBuffer,
-            DWORD   dwOutBufferSize,
-            LPDWORD lpBytesReturned
-        );
-        """
+        
         if not self._port or not FLTLIB_AVAILABLE:
             log.warning("[KernelBridge] _send_command: port not open.")
             return False
@@ -825,7 +518,7 @@ class KernelBridge:
                 self._port,
                 cmd_buf,
                 len(cmd_bytes),
-                None,   # no response buffer required
+                None,   
                 0,
                 ctypes.byref(returned),
             )
@@ -843,48 +536,18 @@ class KernelBridge:
             return False
 
     def kill_pid(self, pid: int) -> bool:
-        """
-        Request the kernel driver to terminate a ransomware process via
-        ZwTerminateProcess — a kernel-level kill that cannot be intercepted
-        or blocked by user-mode hooks in the ransomware itself.
-
-        Paper §III-B-4:
-          "If Machine Learning layer classifies as Ransomware, the process
-           is killed and files modified by it are restored."
-        """
+        
         log.warning(f"[KernelBridge] Sending KILL_PID command: PID={pid}")
         return self._send_command(RW_CMD_KILL_PID, pid)
 
     def whitelist_pid(self, pid: int) -> bool:
-        """
-        Tell the kernel driver to stop monitoring a process that the ML
-        layer has classified as benign.  The driver will remove the PID
-        from its active tracking set and stop sending IRPs for it.
-
-        Paper §III-B-4:
-          "If classified as Benign then files backed up due to the suspicious
-           process are deleted."
-        """
+        
         log.info(f"[KernelBridge] Whitelisting PID={pid} in kernel driver")
         return self._send_command(RW_CMD_WHITELIST_PID, pid)
 
-    # ════════════════════════════════════════════════════════════════════════ #
-    # DRIVER STATISTICS
-    # ════════════════════════════════════════════════════════════════════════ #
 
     def get_driver_stats(self) -> dict:
-        """
-        Query the kernel driver for its internal statistics counters:
-          - Total IRPs intercepted
-          - Suspicious IRP count
-          - Dropped (queue-full) messages
-
-        These are stored in the driver's g_TotalIRPs / g_SuspiciousIRPs /
-        g_DroppedMessages volatile counters (see RansomWallFilter.c).
-
-        Paper §V-G: "Feature values computation and collection for normal
-        processes add less than 1% CPU Load."
-        """
+       
         if not self._port or not FLTLIB_AVAILABLE:
             return {}
 
@@ -899,7 +562,6 @@ class KernelBridge:
                 ctypes.POINTER(ctypes.c_ulong),
             ]
 
-            # Driver returns 3 × ULONG = 12 bytes
             out_buf  = ctypes.create_string_buffer(12)
             returned = ctypes.c_ulong(0)
             cmd_bytes = _build_command(RW_CMD_STATUS, 0)
@@ -931,17 +593,9 @@ class KernelBridge:
 
         return {}
 
-    # ════════════════════════════════════════════════════════════════════════ #
-    # UTILITY
-    # ════════════════════════════════════════════════════════════════════════ #
 
     @staticmethod
     def is_driver_loaded() -> bool:
-        """
-        Check whether RansomWallFilter.sys is currently loaded by attempting
-        to open the communication port.  Closes the port immediately if
-        successful.  Returns True if the driver is running, False otherwise.
-        """
         if not FLTLIB_AVAILABLE:
             return False
         try:
@@ -972,27 +626,8 @@ class KernelBridge:
         return dict(self._stats)
 
 
-# ════════════════════════════════════════════════════════════════════════════ #
-# CONVENIENCE WRAPPER — drop-in for main.py
-# ════════════════════════════════════════════════════════════════════════════ #
 
 class RansomWallSystemWithKernel:
-    """
-    Drop-in replacement for RansomWallSystem (main.py) that uses the real
-    kernel driver instead of watchdog when available.
-
-    Usage in main.py or kernel_main.py:
-      from kernel_bridge import RansomWallSystemWithKernel as RansomWallSystem
-
-    The KernelBridge replaces:
-      - watchdog.observers.Observer  (dynamic layer filesystem monitoring)
-      - TrapEventHandler             (trap layer watchdog handler)
-    with a direct connection to the RansomWallFilter.sys minifilter driver.
-
-    When the driver is not loaded the system falls back transparently to the
-    standard watchdog-based operation.
-    """
-
     def __init__(self, watch_dirs=None, backup_dir="rw_backup",
                  log_path="ransomwall_main.log"):
         from ransomwall_trap_layer    import TrapLayer
@@ -1019,11 +654,6 @@ class RansomWallSystemWithKernel:
         self._classified: dict = {}
 
     def _on_kernel_irp(self, msg: IRPMessage) -> None:
-        """
-        Per-IRP callback for high-value events — provides the real-time
-        trace logging described in paper §V evaluation (Section V-B debug
-        traces collected per process).
-        """
         if msg.is_ransom_extension or msg.fingerprint_mismatch:
             self.log.warning(
                 f"[KERNEL-IRP] {msg.op_name().upper():12}  "
@@ -1034,10 +664,6 @@ class RansomWallSystemWithKernel:
             )
 
     def start(self) -> None:
-        """
-        Start the system.  Tries the kernel bridge first; falls back to
-        the watchdog-based simulation if the driver is not loaded.
-        """
         self.log.info("[SYSTEM] Starting RansomWall (kernel-mode preferred)...")
 
         if self.kernel_bridge.start():
@@ -1046,7 +672,6 @@ class RansomWallSystemWithKernel:
                 "         Real IRP interception via RansomWallFilter.sys\n"
                 "         Paper §IV-B minifilter driver is running."
             )
-            # Honey files are still deployed by TrapLayer subsystems
             self.trap.honey_mgr.deploy()
             self.trap.behavior.start(interval=2.0)
             self.trap.poller.start()
@@ -1067,7 +692,6 @@ class RansomWallSystemWithKernel:
         self.log.info("[SYSTEM] All layers active.")
 
     def stop(self) -> None:
-        """Graceful shutdown of all layers."""
         self._running = False
         self.kernel_bridge.stop()
         try:
@@ -1081,11 +705,6 @@ class RansomWallSystemWithKernel:
         self.log.info("[SYSTEM] RansomWall (kernel mode) stopped.")
 
     def on_ransomware_verdict(self, pid: int) -> None:
-        """
-        Paper §III-B-4: "If ML layer classifies as Ransomware:
-          → process is killed (kernel-level ZwTerminateProcess)
-          → files modified by it are restored to their original locations"
-        """
         killed = self.kernel_bridge.kill_pid(pid)
         if killed:
             self.log.warning(
@@ -1107,11 +726,6 @@ class RansomWallSystemWithKernel:
         self.log.warning(f"[ACTION] Restored {restored} file(s) for PID={pid}")
 
     def on_benign_verdict(self, pid: int) -> None:
-        """
-        Paper §III-B-4: "If classified as Benign then files backed up due
-        to the suspicious process are deleted."
-        Also tells the kernel driver to stop monitoring this PID.
-        """
         self.kernel_bridge.whitelist_pid(pid)
         self.backup.cleanup(pid)
 
