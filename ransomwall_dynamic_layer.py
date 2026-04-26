@@ -1,30 +1,3 @@
-"""
-RansomWall: Dynamic Analysis Engine
-=====================================
-Based on: "RansomWall: A Layered Defense System against Cryptographic
-Ransomware Attacks using Machine Learning" (COMSNETS 2018)
-IIT Delhi - Shaukat & Ribeiro
-
-Paper §III-B-3 / §III-D-3 (Dynamic Analysis Layer):
-  "The Dynamic Analysis Engine monitors file system operations (IRPs) in
-   real-time: Read, Write, Rename, Delete, and Directory Query operations.
-   It also detects entropy spikes in written data and file fingerprint
-   mismatches (extension vs. magic-byte content)."
-
-Feature set tracked (paper §III-D-3):
-  file_read             – IRP_MJ_READ count per bucket
-  file_write            – IRP_MJ_WRITE count per bucket
-  file_rename           – IRP_MJ_SET_INFORMATION (rename) count
-  file_delete           – IRP_MJ_SET_INFORMATION (delete) count
-  dir_query             – IRP_MJ_DIRECTORY (enum) count
-  fingerprint_mismatch  – extension does not match magic bytes
-
-Integration:
-  DynamicEngine is started by main.py alongside TrapLayer.
-  get_status(pid) returns a dict compatible with FeatureAggregator in main.py.
-  inject_irp(op, pid, ...) is the testing / dataset-generation interface.
-"""
-
 import os
 import sys
 import math
@@ -39,7 +12,6 @@ from typing import Dict, List, Optional, Set, Tuple
 
 log = logging.getLogger("RansomWall.DynamicLayer")
 
-# ── Optional watchdog ─────────────────────────────────────────────────────────
 try:
     from watchdog.observers import Observer
     from watchdog.events import FileSystemEventHandler, FileSystemEvent
@@ -48,35 +20,30 @@ except ImportError:
     WATCHDOG_AVAILABLE = False
     log.debug("[DynamicLayer] watchdog not available; filesystem events disabled.")
 
-# ── Optional psutil ───────────────────────────────────────────────────────────
 try:
     import psutil
     PSUTIL_AVAILABLE = True
 except ImportError:
     PSUTIL_AVAILABLE = False
-
-# ── Magic-byte map for fingerprint mismatch detection ─────────────────────────
-# Maps file extension -> expected leading magic bytes (hex prefix)
+  
 MAGIC_BYTES: Dict[str, bytes] = {
     ".pdf":  b"%PDF",
     ".png":  b"\x89PNG",
     ".jpg":  bytes([0xFF, 0xD8, 0xFF]),
     ".jpeg": bytes([0xFF, 0xD8, 0xFF]),
     ".zip":  b"PK\x03\x04",
-    ".docx": b"PK\x03\x04",   # DOCX is a ZIP
-    ".xlsx": b"PK\x03\x04",   # XLSX is a ZIP
-    ".pptx": b"PK\x03\x04",   # PPTX is a ZIP
+    ".docx": b"PK\x03\x04",   
+    ".xlsx": b"PK\x03\x04",   
+    ".pptx": b"PK\x03\x04",   
     ".exe":  b"MZ",
     ".dll":  b"MZ",
-    ".mp4":  bytes([0x00, 0x00, 0x00]),  # ftyp boxes vary; just check non-empty
+    ".mp4":  bytes([0x00, 0x00, 0x00]),  
     ".gif":  b"GIF",
     ".bmp":  b"BM",
 }
 
-# Entropy threshold for detecting encrypted / compressed writes (paper §III-D-3g)
 ENTROPY_THRESHOLD = 7.2
 
-# Suspicion score per dynamic feature (weights calibrated to paper §IV-A)
 DYN_FEATURE_WEIGHTS = {
     "file_write":           0.15,
     "file_rename":          0.25,
@@ -87,7 +54,6 @@ DYN_FEATURE_WEIGHTS = {
     "entropy_spike":        1.00,
 }
 
-# Thresholds – counts above which a feature contributes to suspicion
 COUNT_THRESHOLDS = {
     "file_write":   10,
     "file_rename":  5,
@@ -96,10 +62,6 @@ COUNT_THRESHOLDS = {
     "dir_query":    10,
 }
 
-
-# ════════════════════════════════════════════════════════════════════════════ #
-# PER-PROCESS STATE
-# ════════════════════════════════════════════════════════════════════════════ #
 
 @dataclass
 class ProcessState:
@@ -113,10 +75,8 @@ class ProcessState:
     fingerprint_mismatch: int = 0
     entropy_spike_count:  int = 0
 
-    # Files recently touched by this PID (for backup layer integration)
     modified_files: List[str] = field(default_factory=list)
 
-    # Suspicion score derived from dynamic features only
     suspicion_score: float = 0.0
 
     def feature_vector(self) -> dict:
@@ -131,10 +91,6 @@ class ProcessState:
         }
 
     def recompute_score(self) -> float:
-        """
-        Paper §IV-A: dynamic layer contributes to combined suspicion score.
-        Count-based thresholds map to binary indicators; then weighted sum.
-        """
         score = 0.0
         counts = {
             "file_write":  self.write_count,
@@ -157,18 +113,10 @@ class ProcessState:
         return self.suspicion_score
 
 
-# ════════════════════════════════════════════════════════════════════════════ #
-# WATCHDOG HANDLER (filesystem event -> IRP simulation)
-# ════════════════════════════════════════════════════════════════════════════ #
 
 if WATCHDOG_AVAILABLE:
     class _DynamicEventHandler(FileSystemEventHandler):
-        """
-        Translates watchdog filesystem events into DynamicEngine IRP injections.
-        Since watchdog doesn't expose PIDs, we use PID=0 (unknown) for real
-        filesystem events — the kernel filter driver would supply the real PID.
-        """
-
+        
         def __init__(self, engine: "DynamicEngine"):
             super().__init__()
             self.engine = engine
@@ -190,9 +138,6 @@ if WATCHDOG_AVAILABLE:
                 self.engine.inject_irp("write", pid=0, path=event.src_path)
 
 
-# ════════════════════════════════════════════════════════════════════════════ #
-# DYNAMIC ENGINE — main class
-# ════════════════════════════════════════════════════════════════════════════ #
 
 class DynamicEngine:
     """
