@@ -1,0 +1,83 @@
+
+; RansomWall Minifilter Driver - INF Installation File
+; Paper §IV-D: "Microsoft Windows Driver Kit 10"
+;
+; Installation:
+;   Right-click RansomWallFilter.inf -> Install
+;   OR: pnputil /add-driver RansomWallFilter.inf /install
+;
+; IMPORTANT: Requires Test Signing or a valid EV code signing certificate.
+;   Test mode:  bcdedit /set testsigning on
+;   Then reboot and sign the .sys with:
+;   signtool sign /v /fd sha256 /s TestCertStore /n "RansomWall Test" RansomWallFilter.sys
+
+[Version]
+Signature   = "$Windows NT$"
+Class       = "ActivityMonitor"
+ClassGuid   = {b86dff51-a31e-4bac-b3cf-e8cfe75c9fc2}
+Provider    = %ManufacturerName%
+DriverVer   = 01/01/2024,1.0.0.0
+CatalogFile = RansomWallFilter.cat
+
+[DestinationDirs]
+DefaultDestDir          = 12         ; %windir%\system32\drivers
+MiniFilter.DriverFiles  = 12
+
+[DefaultInstall.NT$ARCH$]
+OptionDesc  = %ServiceDescription%
+CopyFiles   = MiniFilter.DriverFiles
+
+[DefaultInstall.NT$ARCH$.Services]
+AddService  = %ServiceName%, 0x00000002, MiniFilter.Service
+
+[DefaultUninstall.NT$ARCH$]
+DelFiles    = MiniFilter.DriverFiles
+DelReg      = MiniFilter.DelRegistry
+
+[DefaultUninstall.NT$ARCH$.Services]
+DelService  = %ServiceName%, 0x00000200   ; SPSVCINST_STOPSERVICE
+
+;--- Service configuration ---
+[MiniFilter.Service]
+DisplayName    = %ServiceName%
+Description    = %ServiceDescription%
+ServiceBinary  = %12%\%DriverName%.sys
+ServiceType    = 2      ; SERVICE_FILE_SYSTEM_DRIVER
+StartType      = 3      ; SERVICE_DEMAND_START (change to 1 = AUTO for production)
+ErrorControl   = 1      ; SERVICE_ERROR_NORMAL
+LoadOrderGroup = "FSFilter Activity Monitor"
+AddReg         = MiniFilter.AddRegistry
+
+[MiniFilter.AddRegistry]
+HKR,"Parameters","SupportedFeatures",0x00010001,0x3   ; supports named data streams + hard links
+HKR,"Parameters\Instances","DefaultInstance",0x00000000,%DefaultInstance%
+HKR,"Parameters\Instances\"%Instance1.Name%","Altitude",0x00000000,%Instance1.Altitude%
+HKR,"Parameters\Instances\"%Instance1.Name%","Flags",0x00010001,%Instance1.Flags%
+
+[MiniFilter.DelRegistry]
+HKLM,"System\CurrentControlSet\Services\%ServiceName%"
+
+[MiniFilter.DriverFiles]
+%DriverName%.sys
+
+[SourceDisksFiles]
+RansomWallFilter.sys = 1,,
+
+[SourceDisksNames]
+1 = %DiskId1%,,,
+
+;=============================================================================
+; String Section
+;=============================================================================
+[Strings]
+ManufacturerName        = "RansomWall - IIT Delhi"
+ServiceDescription      = "RansomWall File System Minifilter Driver"
+ServiceName             = "RansomWallFilter"
+DriverName              = "RansomWallFilter"
+DiskId1                 = "RansomWall Installation Disk"
+
+;--- Filter instance ---
+DefaultInstance         = "RansomWall Instance"
+Instance1.Name          = "RansomWall Instance"
+Instance1.Altitude      = "370030"
+Instance1.Flags         = 0x0    ; Automatic attachment to all volumes
