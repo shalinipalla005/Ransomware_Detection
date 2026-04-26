@@ -1,26 +1,4 @@
-"""
-RansomWall: Machine Learning Engine
-=====================================
-Based on: "RansomWall: A Layered Defense System against Cryptographic
-Ransomware Attacks using Machine Learning" (COMSNETS 2018)
-IIT Delhi - Shaukat & Ribeiro
 
-Paper §III-B-5 (Machine Learning Engine):
-  • Binary classification: Ransomware | Benign
-  • Supervised learning (Gradient Tree Boosting gives best results: 98.25% TPR)
-  • Feature input: merged Static + Dynamic + Trap layer features
-  • Moving-average sliding window (Bucket = 1 second, window = 3 intervals)
-  • Final verdict: same classification for 3 CONTIGUOUS intervals -> confirmed
-
-Paper §IV-C (ML Implementation):
-  "The Machine Learning Layer outputs a suspicious process as Ransomware
-  or Benign if the classification result is same for 3 contiguous
-  time-intervals, to reduce false detections."
-"""
-
-"""
-RansomWall: Machine Learning Engine (Paper-strict implementation)
-"""
 
 import math
 import pickle
