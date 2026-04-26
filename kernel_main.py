@@ -1,51 +1,3 @@
-"""
-RansomWall: Kernel-Mode Main Pipeline
-========================================
-Based on: "RansomWall: A Layered Defense System against Cryptographic
-Ransomware Attacks using Machine Learning" (COMSNETS 2018)
-IIT Delhi - Shaukat & Ribeiro
-
-This is the KERNEL-LEVEL version of main.py.
-
-Paper §IV-A Workflow (actual kernel implementation):
-  "IRP Filter registers with File System I/O Manager during RansomWall
-   initialization for receiving IRP messages. During file operations,
-   I/O Manager forwards generated IRP messages to the registered IRP Filter.
-   The IRP Filter forwards IRP messages ... to Dynamic and Trap Layers
-   for feature computation."
-
-Architecture:
-  [User File I/O]
-      |
-  [Windows I/O Manager]
-      |
-  [Filter Manager] ← RansomWallFilter.sys (kernel minifilter)
-      |  (FltSendMessage → named port \RansomWallPort)
-      ↓
-  [kernel_bridge.py ← THIS FILE integrates it]
-      |
-      ├── DynamicEngine.inject_irp()     (file I/O metrics)
-      ├── TrapLayer.inject_test_event()  (honey file hits)
-      └── FeatureCollector → MLModel
-              |
-              ├── Ransomware → kernel_bridge.kill_pid(pid)  [ZwTerminateProcess]
-              └── Benign     → kernel_bridge.whitelist_pid(pid) + backup.cleanup()
-
-Differences from main.py (watchdog version):
-  1. No watchdog.Observer — IRPs come directly from the kernel driver.
-  2. Process kill is via ZwTerminateProcess in kernel (cannot be blocked).
-  3. ProcessManager.kill() delegates to kernel first, falls back to psutil.
-  4. Honey file detection is kernel-accurate (path from FltGetFileNameInformation).
-  5. Entropy computed in kernel on written MDL buffer, not by re-reading the file.
-
-Usage:
-  python kernel_main.py               # kernel mode (falls back to watchdog)
-  python kernel_main.py --demo        # inject synthetic events
-  python kernel_main.py --monitor     # real-time monitoring
-  python kernel_main.py --static FILE # static analysis + monitor
-  python kernel_main.py --stats       # print driver statistics and exit
-"""
-
 import os
 import sys
 import io
@@ -62,7 +14,6 @@ from typing import Dict, Optional, Set
 
 UTC = timezone.utc
 
-# ── Layer imports ──────────────────────────────────────────────────────────────
 from stat_real                import run_static_layer
 from ransomwall_trap_layer    import TrapLayer
 from ransomwall_dynamic_layer import DynamicEngine
@@ -74,29 +25,17 @@ from kernel_bridge            import (
     FLTLIB_AVAILABLE
 )
 
-# Re-use FeatureAggregator from main.py
 from main import (
     FeatureAggregator,
     SUSPICION_THRESHOLD,
     MONITOR_INTERVAL_SEC,
     BENIGN_CONFIRM_TICKS,
-    BANNER,
     _setup_logging,
     ProcessManager,
 )
 
 log = logging.getLogger("RansomWall.KernelMain")
 
-KERNEL_BANNER = """
-+====================================================================+
-|       RansomWall - KERNEL MODE (RansomWallFilter.sys active)       |
-|       Real IRP interception via Windows Filter Manager             |
-|       Shaukat & Ribeiro  |  IIT Delhi  |  COMSNETS 2018           |
-|                                                                    |
-|  Paper §IV-B: "RansomWall implements a File System Filter Driver   |
-|  ... a kernel level driver that filters I/O operations."           |
-+====================================================================+
-"""
 
 WATCHDOG_BANNER = """
 +====================================================================+
@@ -106,38 +45,16 @@ WATCHDOG_BANNER = """
 +====================================================================+
 """
 
-
-# ════════════════════════════════════════════════════════════════════════════ #
-# KERNEL-AWARE PROCESS MANAGER
-# ════════════════════════════════════════════════════════════════════════════ #
-
 class KernelProcessManager(ProcessManager):
-    """
-    Paper §III-B-4: "If Machine Learning layer classifies as Ransomware,
-    the process is killed."
-
-    Extends ProcessManager to attempt kernel-level kill (via ZwTerminateProcess
-    in the driver) BEFORE falling back to user-mode psutil.kill().
-
-    Kernel kill is preferred because:
-     - It cannot be blocked by the ransomware process itself (no user-mode hooks).
-     - It runs in kernel context with SYSTEM privileges.
-     - ZwTerminateProcess is called with PROCESS_TERMINATE access from KernelMode.
-    """
 
     def __init__(self, kernel_bridge: Optional[KernelBridge] = None):
         self._bridge = kernel_bridge
 
     def kill(self, pid: int, logger: logging.Logger) -> bool:
-        """
-        Try kernel kill first; fall back to user-mode.
-        Returns True if kill succeeded by either method.
-        """
         if pid in (0, -1, os.getpid()):
             logger.warning(f"[KernelProcessManager] Refusing self-kill PID={pid}")
             return False
 
-        # ── Attempt 1: kernel-level kill ──────────────────────────────────────
         if self._bridge and self._bridge._port:
             logger.warning(
                 f"[KERNEL-KILL] Requesting ZwTerminateProcess for PID={pid}"
@@ -154,28 +71,11 @@ class KernelProcessManager(ProcessManager):
                 f"Falling back to user-mode..."
             )
 
-        # ── Attempt 2: user-mode psutil ───────────────────────────────────────
         return super().kill(pid, logger)
 
 
-# ════════════════════════════════════════════════════════════════════════════ #
-# KERNEL RANSOMWALL SYSTEM
-# ════════════════════════════════════════════════════════════════════════════ #
 
 class KernelRansomWallSystem:
-    """
-    RansomWall system with real kernel-level IRP interception.
-
-    This replaces the watchdog-based RansomWallSystem in main.py when
-    RansomWallFilter.sys is loaded and connected via \RansomWallPort.
-
-    Paper §IV-A: "IRP Filter registers with File System I/O Manager
-    during RansomWall initialization for receiving IRP messages."
-
-    Fallback: if the kernel driver is not loaded, transparently degrades
-    to the watchdog-based approach (same as main.py).
-    """
-
     def __init__(self,
                  watch_dirs=None,
                  backup_dir: str  = "rw_backup",
@@ -183,17 +83,14 @@ class KernelRansomWallSystem:
 
         self.log = _setup_logging(log_path)
 
-        # Watch directories for honey files (trap layer)
         if watch_dirs is None:
             _tmp = Path(tempfile.gettempdir()) / "ransomwall_watch"
             _tmp.mkdir(parents=True, exist_ok=True)
             watch_dirs = [_tmp]
         self.watch_dirs = [Path(d) for d in watch_dirs]
 
-        # ── Layer 1: Static Analysis (pre-execution) ──────────────────────────
         self._static_result: Optional[dict] = None
 
-        # ── Layer 2 + 3: Trap + Dynamic (kernel or watchdog) ──────────────────
         self.log.info("[INIT] Initializing Trap Layer ...")
         self.trap = TrapLayer(
             watch_dirs     = self.watch_dirs,
@@ -207,18 +104,14 @@ class KernelRansomWallSystem:
             log_path   = "ransomwall_dynamic.log",
         )
 
-        # ── Layer 4: File Backup ───────────────────────────────────────────────
         self.log.info("[INIT] Initializing File Backup Layer ...")
         self.backup = BackupLayer(backup_dir=backup_dir)
 
-        # ── Layer 5: ML Engine ────────────────────────────────────────────────
         self.log.info("[INIT] Initializing Machine Learning Engine ...")
         self.ml = MLModel()
 
-        # ── Feature Aggregator ────────────────────────────────────────────────
         self.aggregator = FeatureAggregator()
 
-        # ── Kernel Bridge ─────────────────────────────────────────────────────
         self.log.info("[INIT] Creating Kernel Bridge ...")
         self.bridge = KernelBridge(
             dynamic_engine  = self.dynamic,
@@ -226,12 +119,10 @@ class KernelRansomWallSystem:
             on_irp_callback = self._on_kernel_irp,
         )
 
-        # ── Kernel-aware process manager ──────────────────────────────────────
         self._proc_manager = KernelProcessManager(kernel_bridge=self.bridge)
 
-        # ── Runtime state ─────────────────────────────────────────────────────
         self._running              = False
-        self._kernel_mode          = False    # True if driver connected
+        self._kernel_mode          = False    
         self._monitor_thread: Optional[threading.Thread] = None
         self._lock                 = threading.Lock()
         self._suspicious_pids: Set[int]         = set()
@@ -240,30 +131,16 @@ class KernelRansomWallSystem:
 
         self.log.info("[INIT] All layers initialized. System ready.")
 
-    # =======================================================================
-    # LAYER 1: STATIC ANALYSIS
-    # =======================================================================
 
     def run_static(self, file_path: str) -> dict:
-        """Paper §III-B-1: Static analysis before execution."""
         self.log.info(f"[STATIC] Analyzing: {file_path}")
         result = run_static_layer(file_path)
         self._static_result = result
         self.aggregator = FeatureAggregator(static_result=result)
         return result
 
-    # =======================================================================
-    # KERNEL IRP CALLBACK
-    # Paper §IV-A: "IRP Filter forwards IRP messages ... to Dynamic and
-    # Trap Layers for feature computation."
-    # =======================================================================
 
     def _on_kernel_irp(self, msg: IRPMessage):
-        """
-        Real-time per-IRP callback from the kernel driver.
-        Provides structured logging of every suspicious operation.
-        """
-        # High-value events: entropy spikes and ransom renames
         if msg.operation == RW_OP_ENTROPY_SPIKE:
             self.log.warning(
                 f"[KERNEL-IRP] ENTROPY SPIKE  "
@@ -288,43 +165,33 @@ class KernelRansomWallSystem:
                 f"file=...{msg.file_path[-40:]}"
             )
 
-    # =======================================================================
-    # START / STOP
-    # =======================================================================
 
     def start(self):
         if self._running:
             self.log.warning("[SYSTEM] Already running.")
             return
 
-        # ── Try kernel driver first ────────────────────────────────────────────
         if platform.system() == "Windows":
             kernel_connected = self.bridge.start()
             if kernel_connected:
                 self._kernel_mode = True
-                self.log.info(KERNEL_BANNER)
 
-                # Honey file deployment (trap layer part only — no watchdog)
                 self.trap.honey_mgr.deploy(self.watch_dirs)
                 self.trap.behavior.start(interval=2.0)
                 self.trap.poller.start()
-                # NOTE: We do NOT start watchdog Observer — IRPs come from kernel
                 self.log.info(
                     "[KERNEL] Trap Layer honey files deployed. "
                     "Watchdog DISABLED (kernel IRP path active)."
                 )
             else:
-                # Fallback: watchdog simulation
                 self.log.info(WATCHDOG_BANNER)
                 self.trap.start()
                 self.dynamic.start()
         else:
-            # Non-Windows: watchdog only
             self.log.info("[SYSTEM] Non-Windows OS: using watchdog simulation.")
             self.trap.start()
             self.dynamic.start()
 
-        # ── Start monitoring loop ──────────────────────────────────────────────
         self._running = True
         self._monitor_thread = threading.Thread(
             target=self._monitor_loop,
@@ -343,10 +210,8 @@ class KernelRansomWallSystem:
         if self._monitor_thread and self._monitor_thread.is_alive():
             self._monitor_thread.join(timeout=5)
 
-        # Kernel bridge first (disconnects from driver port)
         self.bridge.stop()
 
-        # Then watchdog layers
         try:
             self.trap.stop()
         except Exception:
@@ -358,20 +223,9 @@ class KernelRansomWallSystem:
 
         self.log.info("[SYSTEM] KernelRansomWall stopped.")
 
-    # =======================================================================
-    # MONITORING LOOP (paper §IV-C: 1-second bucket)
-    # =======================================================================
+
 
     def _monitor_loop(self):
-        """
-        Paper §IV-C: "Bucket Size = 1 second."
-        Every bucket:
-          1. Collect Trap + Dynamic status.
-          2. Compute combined suspicion score.
-          3. Tag suspicious PIDs → trigger Backup + ML.
-          4. Sliding-window ML consensus (3 contiguous ticks).
-          5. Act: kill (kernel) or cleanup (benign).
-        """
         while self._running:
             t_start = time.monotonic()
 
@@ -394,7 +248,6 @@ class KernelRansomWallSystem:
                      pid: int,
                      trap_status: Optional[dict],
                      dyn_status:  Optional[dict]):
-        """Per-PID pipeline: score → tag → backup → ML → act."""
 
         score = self.aggregator.suspicion_score(trap_status, dyn_status)
 
@@ -426,10 +279,6 @@ class KernelRansomWallSystem:
             if ticks >= BENIGN_CONFIRM_TICKS:
                 self._on_benign(pid)
 
-    # =======================================================================
-    # EVENT HANDLERS
-    # =======================================================================
-
     def _on_suspicious(self, pid, score, trap_status, dyn_status):
         name = (trap_status or dyn_status or {}).get("process_name", "unknown")
         self.log.warning(
@@ -443,7 +292,6 @@ class KernelRansomWallSystem:
         )
 
     def _trigger_backup(self, pid: int, dyn_status: Optional[dict]):
-        """Paper §III-B-4: back up files modified by the suspicious process."""
         files_to_back: Set[str] = set()
         if dyn_status:
             for fpath in dyn_status.get("modified_files", []):
@@ -455,14 +303,7 @@ class KernelRansomWallSystem:
                 self.log.info(f"[BACKUP] Files backed up  PID={pid}  count={n}")
 
     def _on_ransomware(self, pid: int):
-        """
-        Paper §III-B-4: "If classified as Ransomware:
-          -> process is killed
-          -> files modified by it are restored"
 
-        In kernel mode: kill is via ZwTerminateProcess (cannot be blocked).
-        In watchdog mode: kill is via psutil.
-        """
         with self._lock:
             if self._classified_pids.get(pid) == "ransomware":
                 return
@@ -474,25 +315,17 @@ class KernelRansomWallSystem:
             f"{'='*60}"
         )
 
-        # Kernel-level or user-mode kill
         self._proc_manager.kill(pid, self.log)
 
-        # Whitelist in kernel driver so it stops sending IRPs for this PID
         if self._kernel_mode:
-            self.bridge.whitelist_pid(pid)   # suppresses further IRPs from corpse
+            self.bridge.whitelist_pid(pid)   
 
-        # Restore backed-up files
         restored = self.backup.restore(pid)
         self.log.warning(f"[ACTION] Restored {restored} file(s) for PID={pid}")
 
-        # Reset ML window
         self.ml.reset_pid(pid)
 
     def _on_benign(self, pid: int):
-        """
-        Paper §III-B-4: "If classified as Benign -> delete backup copies."
-        Also tells kernel driver to stop monitoring this PID.
-        """
         with self._lock:
             if self._classified_pids.get(pid) == "benign":
                 return
@@ -505,7 +338,6 @@ class KernelRansomWallSystem:
             f"{'-'*60}"
         )
 
-        # Tell kernel driver to whitelist this PID (no more IRP callbacks)
         if self._kernel_mode:
             self.bridge.whitelist_pid(pid)
 
@@ -515,23 +347,14 @@ class KernelRansomWallSystem:
         with self._lock:
             self._suspicious_pids.discard(pid)
 
-    # =======================================================================
-    # DEMO (synthetic events — same as main.py demo but notes kernel mode)
-    # =======================================================================
 
     def simulate_attack(self, pid: int = 1337, fast: bool = True):
-        """
-        Inject synthetic ransomware events for demo/testing.
-        In kernel mode these come from inject_test_event + inject_irp,
-        exactly like the paper's sandbox evaluation (§V-B).
-        """
         delay = 0.05 if fast else 0.3
         self.log.info(
             f"[DEMO] Injecting simulated ransomware events  PID={pid}  "
             f"mode={'KERNEL' if self._kernel_mode else 'watchdog'}"
         )
 
-        # Trap layer events (paper §III-D-2)
         trap_events = [
             ("honey_file_write",     "decoy_report.docx"),
             ("honey_file_rename",    "decoy_report.docx"),
@@ -547,23 +370,18 @@ class KernelRansomWallSystem:
             self.trap.inject_test_event(feature, pid=pid, target=target)
             time.sleep(delay)
 
-        # Dynamic IRP events (paper §III-D-3)
         dyn_ops = (
             [("dir_query", "",       "")] * 25 +
-            [("read",   "data.docx", "")] * 30 +
-            [("write",  "data.docx", "")] * 25 +
-            [("rename", "data.docx", "data.encrypted")] * 20 +
-            [("delete", "data.docx", "")] * 12
+            [("read",   str(self.watch_dirs[0] / "data.docx"), "")] * 30 +
+            [("write",  str(self.watch_dirs[0] / "data.docx"), "")] * 25 +
+            [("rename", str(self.watch_dirs[0] / "data.docx"), "data.encrypted")] * 20 +
+            [("delete", str(self.watch_dirs[0] / "data.docx"), "")] * 12
         )
         for op, path, dst in dyn_ops:
             self.dynamic.inject_irp(op, pid, path=path, dst_path=dst)
             time.sleep(delay * 0.3)
 
         self.log.info(f"[DEMO] Simulation complete for PID={pid}.")
-
-    # =======================================================================
-    # STATUS
-    # =======================================================================
 
     def status_report(self) -> dict:
         with self._lock:
@@ -601,16 +419,7 @@ class KernelRansomWallSystem:
                 print(f"    {k:<30}: {v}")
         print(f"{'='*60}\n")
 
-
-# ════════════════════════════════════════════════════════════════════════════ #
-# DEMO
-# ════════════════════════════════════════════════════════════════════════════ #
-
 def run_kernel_demo():
-    """
-    Full pipeline demo using kernel driver if available, watchdog otherwise.
-    """
-    print(BANNER)
     print("=" * 60)
     print("  KERNEL MODE DEMO")
     if FLTLIB_AVAILABLE and KernelBridge.is_driver_loaded():
@@ -635,7 +444,15 @@ def run_kernel_demo():
     signal.signal(signal.SIGINT, _sigint)
 
     rw.start()
-    time.sleep(1.5)  # let layers settle
+    time.sleep(1.5)  
+
+    for i in range(5):
+        p = demo_dir / f"document_{i}.docx"
+        with open(p, "w", encoding="utf-8") as f:
+            f.write("important project data")
+
+    with open(demo_dir / "data.docx", "w", encoding="utf-8") as f:
+        f.write("sensitive office file")
 
     print("\n[Demo] Injecting simulated ransomware events (PID=1337)...\n")
     rw.simulate_attack(pid=1337, fast=True)
@@ -653,17 +470,8 @@ def run_kernel_demo():
     shutil.rmtree(demo_dir, ignore_errors=True)
     print("[Demo] Complete.\n")
 
-
-# ════════════════════════════════════════════════════════════════════════════ #
-# PRODUCTION MONITOR
-# ════════════════════════════════════════════════════════════════════════════ #
-
 def run_kernel_monitor(target_exe: Optional[str] = None):
-    """
-    Real-time monitoring with kernel driver (or watchdog fallback).
-    """
-    print(BANNER)
-
+   
     rw = KernelRansomWallSystem()
 
     def _shutdown(sig, frame):
@@ -685,13 +493,7 @@ def run_kernel_monitor(target_exe: Optional[str] = None):
     except KeyboardInterrupt:
         rw.stop()
 
-
-# ════════════════════════════════════════════════════════════════════════════ #
-# STATS
-# ════════════════════════════════════════════════════════════════════════════ #
-
 def show_driver_stats():
-    """Connect to the running kernel driver and print statistics."""
     print("[STATS] Querying RansomWallFilter.sys...")
     if not FLTLIB_AVAILABLE:
         print("[ERROR] fltlib.dll not available. Run on Windows with driver installed.")
@@ -715,13 +517,9 @@ def show_driver_stats():
     bridge.stop()
 
 
-# ════════════════════════════════════════════════════════════════════════════ #
-# CLI
-# ════════════════════════════════════════════════════════════════════════════ #
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="RansomWall Kernel-Mode Monitor (COMSNETS 2018)",
+        description="RansomWall Kernel-Mode Monitor",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Modes:
