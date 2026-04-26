@@ -1,20 +1,3 @@
-"""
-RansomWall: Honey Files & Trap Layer
-=====================================
-Based on: "RansomWall: A Layered Defense System against Cryptographic
-Ransomware Attacks using Machine Learning" (COMSNETS 2018)
-IIT Delhi - Shaukat & Ribeiro
-
-Architecture:
-  HoneyFileManager  -> deploys decoy files & directories (Section III-B-2)
-  TrapMonitor       -> watches file ops via watchdog (Section III-D-2)
-  BehaviorDetector  -> detects crypto APIs, bcdedit, vssadmin, registry (Section III-D-2)
-  FeatureCollector  -> aggregates triggered features -> suspicion score (Section IV-A)
-  RansomWallLogger  -> structured event log
-  TrapLayer         -> orchestrates everything; exposes get_status()
-
-Paper mapping for each component is documented inline.
-"""
 
 import os
 import sys
@@ -35,9 +18,7 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Set
 from collections import defaultdict
 
-# --------------------------------------------------------------------------- #
-# watchdog is required for file-system monitoring                             #
-# --------------------------------------------------------------------------- #
+
 try:
     from watchdog.observers import Observer
     from watchdog.events import FileSystemEventHandler, FileSystemEvent
@@ -45,7 +26,7 @@ except ImportError:
     print("[!] watchdog not installed. Run:  pip install watchdog")
     sys.exit(1)
 
-# Optional psutil – used for real process name lookups
+
 try:
     import psutil
     PSUTIL_AVAILABLE = True
@@ -88,11 +69,11 @@ CRYPTO_DLLS = {
 }
 
 DEFENSE_BINARIES = {
-    "bcdedit.exe",   # disables safe-mode boot
-    "vssadmin.exe",  # deletes Volume Shadow Copies
-    "wmic.exe",      # also used to delete VSS
-    "wbadmin.exe",   # backup deletion
-    "powershell.exe",# often used for VSS deletion via script
+    "bcdedit.exe", 
+    "vssadmin.exe", 
+    "wmic.exe",      
+    "wbadmin.exe",  
+    "powershell.exe",
 }
 
 SUSPICIOUS_REGISTRY_KEYS = [
@@ -102,24 +83,21 @@ SUSPICIOUS_REGISTRY_KEYS = [
 ]
 
 FEATURE_WEIGHTS: Dict[str, float] = {
-    "honey_file_write":       2.0,   # very strong indicator
+    "honey_file_write":       2.0,  
     "honey_file_rename":      2.0,
     "honey_file_delete":      2.0,
     "honey_dir_modified":     1.5,
-    "crypto_api_usage":       1.5,   # massive use of Windows Crypto APIs
-    "safe_mode_disabled":     3.0,   # bcdedit -> near-certain ransomware
-    "vss_deletion":           3.0,   # vssadmin/wmic -> near-certain ransomware
+    "crypto_api_usage":       1.5,  
+    "safe_mode_disabled":     3.0,   
+    "vss_deletion":           3.0,  
     "registry_persistence":   1.0,
-    "entropy_spike":          1.5,   # high Shannon entropy on writes
+    "entropy_spike":          1.5,  
 }
 
 SUSPICION_THRESHOLD = 6.0   
 
 class RansomWallLogger:
-    """
-    Structured event logger.
-    Each event records: timestamp, pid, operation, file, feature, score.
-    """
+
     def __init__(self, log_path: str = "ransomwall_trap.log"):
         self.log_path = log_path
         self._lock = threading.Lock()
@@ -159,15 +137,12 @@ class HoneyFileManager:
     HONEY_PREFIX = "__rw_honey__"  
     def __init__(self, logger: RansomWallLogger):
         self.logger = logger
-        self.honey_files: Set[str] = set()   # absolute paths
+        self.honey_files: Set[str] = set()  
         self.honey_dirs:  Set[str] = set()
-        self.checksums:   Dict[str, str] = {}   # path -> sha256
+        self.checksums:   Dict[str, str] = {}  
 
     def deploy(self, directories: Optional[List[Path]] = None) -> int:
-        """
-        Deploy honey files into each watched directory.
-        Returns count of files created.
-        """
+  
         if directories is None:
             directories = get_honey_directories()
 
@@ -201,9 +176,9 @@ class HoneyFileManager:
         )
         return count
 
-    # ---------------------------------------------------------------------- #
+
     def _write_honey_file(self, path: Path):
-        """Write a realistic-looking decoy file and record its checksum."""
+     
         content = (
             f"This is a RansomWall honey file.\n"
             f"Created: {datetime.now(UTC).isoformat()}\n"
@@ -214,21 +189,17 @@ class HoneyFileManager:
         self.honey_files.add(str(path))
         self.checksums[str(path)] = self._sha256(path)
 
-    # ---------------------------------------------------------------------- #
+
     def is_honey(self, path: str) -> bool:
-        """Return True if the given path is a known honey file or inside a honey dir."""
+     
         if path in self.honey_files:
             return True
         if any(path.startswith(d) for d in self.honey_dirs):
             return True
         return False
 
-    # ---------------------------------------------------------------------- #
     def verify_integrity(self) -> List[str]:
-        """
-        Scan honey files for content changes (catches writes that watchdog missed).
-        Returns list of tampered paths.
-        """
+
         tampered = []
         for fpath, original_hash in list(self.checksums.items()):
             p = Path(fpath)
@@ -239,9 +210,8 @@ class HoneyFileManager:
                 tampered.append(fpath)   # content changed
         return tampered
 
-    # ---------------------------------------------------------------------- #
     def cleanup(self):
-        """Remove all deployed honey files (call on shutdown)."""
+    
         for fpath in list(self.honey_files):
             try:
                 Path(fpath).unlink(missing_ok=True)
@@ -263,11 +233,7 @@ class HoneyFileManager:
         return h.hexdigest()
 
 
-# ═══════════════════════════════════════════════════════════════════════════ #
-# §4  FEATURE COLLECTOR                                                       #
-#     Paper §IV-A: accumulates per-process feature values; tags a process    #
-#     as suspicious when ≥6 indicators fire.                                  #
-# ═══════════════════════════════════════════════════════════════════════════ #
+
 
 @dataclass
 class ProcessRecord:
@@ -283,22 +249,15 @@ class ProcessRecord:
 
 
 class FeatureCollector:
-    """
-    Central store for per-process suspicion state.
-    Thread-safe accumulation of feature hits and scoring.
-    """
+  
     def __init__(self, logger: RansomWallLogger):
         self.logger = logger
         self._records: Dict[int, ProcessRecord] = {}
         self._lock = threading.Lock()
 
-    # ---------------------------------------------------------------------- #
     def record_feature(self, pid: int, feature: str,
                        target: str = "", extra: str = "") -> ProcessRecord:
-        """
-        Register one feature hit for `pid`.
-        Returns the updated ProcessRecord.
-        """
+   
         weight = FEATURE_WEIGHTS.get(feature, 1.0)
 
         with self._lock:
@@ -318,7 +277,6 @@ class FeatureCollector:
                 "extra":   extra,
             })
 
-            # Paper §IV-A threshold logic
             if (not rec.flagged_suspicious
                     and rec.suspicion_score >= SUSPICION_THRESHOLD):
                 rec.flagged_suspicious = True
@@ -332,13 +290,9 @@ class FeatureCollector:
                           rec.suspicion_score, extra)
         return rec
 
-    # ---------------------------------------------------------------------- #
+
     def get_status(self, pid: Optional[int] = None) -> dict:
-        """
-        Return detection status.
-        If pid is given -> single-process dict.
-        Otherwise -> dict of all suspicious processes.
-        """
+
         with self._lock:
             if pid is not None:
                 rec = self._records.get(pid)
@@ -351,7 +305,7 @@ class FeatureCollector:
                 if r.flagged_suspicious
             }
 
-    # ---------------------------------------------------------------------- #
+
     @staticmethod
     def _serialize(rec: ProcessRecord) -> dict:
         return {
@@ -374,19 +328,10 @@ class FeatureCollector:
         return "unknown"
 
 
-# ═══════════════════════════════════════════════════════════════════════════ #
-# §5  TRAP MONITOR (watchdog handler)                                         #
-#     Paper §III-D-2a: "Write, Rename and Delete operations on Honey          #
-#     Files/Directories are tracked for malicious activities."                #
-# ═══════════════════════════════════════════════════════════════════════════ #
+
 
 class TrapEventHandler(FileSystemEventHandler):
-    """
-    Watchdog event handler.
-    Fires when any filesystem event occurs under watched directories.
-    We check whether the affected path is a honey file / honey directory,
-    then record the appropriate feature.
-    """
+
 
     def __init__(self, honey_mgr: HoneyFileManager,
                  collector: FeatureCollector,
@@ -396,25 +341,16 @@ class TrapEventHandler(FileSystemEventHandler):
         self.collector = collector
         self.logger    = logger
 
-    # ---------------------------------------------------------------------- #
     def _pid_from_event(self, event: FileSystemEvent) -> int:
-        """
-        Watchdog does not expose PIDs on most platforms.
-        On Linux we probe /proc for recently modified entries;
-        on Windows / macOS we return 0 (unknown) – a real implementation
-        would use a kernel filter driver (paper §IV-B).
-        """
+     
         if platform.system() == "Linux":
             return self._linux_guess_pid(event.src_path)
         return 0   # unknown PID on non-Linux without kernel driver
 
-    # ---------------------------------------------------------------------- #
+
     @staticmethod
     def _linux_guess_pid(path: str) -> int:
-        """
-        Heuristic: scan /proc/*/fd for open handles to this file.
-        This is a simulation of what a kernel IRP filter does natively.
-        """
+       
         try:
             for entry in os.scandir("/proc"):
                 if not entry.name.isdigit():
@@ -433,7 +369,6 @@ class TrapEventHandler(FileSystemEventHandler):
             pass
         return 0
 
-    # ---------------------------------------------------------------------- #
     def on_modified(self, event: FileSystemEvent):
         if event.is_directory:
             if self.honey_mgr.is_honey(event.src_path):
@@ -448,7 +383,7 @@ class TrapEventHandler(FileSystemEventHandler):
             self._fire(path, "honey_file_delete", event)
 
     def on_moved(self, event):
-        # watchdog sends FileMovedEvent for renames
+
         src = event.src_path
         dst = getattr(event, "dest_path", "")
         if self.honey_mgr.is_honey(src) or self.honey_mgr.is_honey(dst):
@@ -456,13 +391,13 @@ class TrapEventHandler(FileSystemEventHandler):
                        extra=f"-> {dst}")
 
     def on_created(self, event: FileSystemEvent):
-        # A new file inside a honey directory is also suspicious
+     
         if not event.is_directory:
             if self.honey_mgr.is_honey(event.src_path):
                 self._fire(event.src_path, "honey_file_write", event,
                            extra="new file in honey dir")
 
-    # ---------------------------------------------------------------------- #
+
     def _fire(self, path: str, feature: str,
               event: FileSystemEvent, extra: str = ""):
         pid = self._pid_from_event(event)
@@ -472,32 +407,16 @@ class TrapEventHandler(FileSystemEventHandler):
         self.collector.record_feature(pid, feature, target=path, extra=extra)
 
 
-# ═══════════════════════════════════════════════════════════════════════════ #
-# §6  BEHAVIOR DETECTOR                                                       #
-#     Covers paper §III-D-2b / §III-D-2c / §III-D-2d / §III-D-2e:           #
-#       • Suspicious Windows Crypto API usage                                 #
-#       • Disabling safe-mode boot (bcdedit)                                  #
-#       • Deletion of Volume Shadow Copies (vssadmin / wmic)                  #
-#       • Suspicious Registry modifications                                   #
-# ═══════════════════════════════════════════════════════════════════════════ #
-
 class BehaviorDetector:
-    """
-    Polls running processes for:
-      1. Loaded Crypto DLLs (Windows) / linked crypto libs (Linux sim)
-      2. Defense-disabling processes (bcdedit, vssadmin, wmic …)
-      3. Registry persistence patterns (Windows only)
-      4. Shannon entropy of recently written files (high entropy ≈ encryption)
-    """
 
     def __init__(self, collector: FeatureCollector, logger: RansomWallLogger):
         self.collector  = collector
         self.logger     = logger
-        self._seen_pids: Set[int] = set()   # avoid double-counting per pid
+        self._seen_pids: Set[int] = set()  
         self._stop      = threading.Event()
         self._thread    = None
 
-    # ---------------------------------------------------------------------- #
+
     def start(self, interval: float = 2.0):
         self._thread = threading.Thread(
             target=self._poll_loop,
@@ -513,18 +432,14 @@ class BehaviorDetector:
         if self._thread:
             self._thread.join(timeout=5)
 
-    # ---------------------------------------------------------------------- #
+  
     def _poll_loop(self, interval: float):
         while not self._stop.is_set():
             self._scan_processes()
             time.sleep(interval)
 
-    # ---------------------------------------------------------------------- #
     def _scan_processes(self):
-        """
-        Iterate running processes; flag those exhibiting suspicious behavior.
-        With psutil this is a real scan; without it we simulate.
-        """
+      
         if not PSUTIL_AVAILABLE:
             self._simulate_scan()
             return
@@ -535,20 +450,20 @@ class BehaviorDetector:
                 name = (proc.info["name"] or "").lower()
                 cmdline = " ".join(proc.info["cmdline"] or []).lower()
 
-                # §III-D-2c  bcdedit usage -> safe-mode disabling
+             
                 if "bcdedit" in name or "bcdedit" in cmdline:
                     if "bootstatuspolicy" in cmdline or "safeboot" in cmdline:
                         self._fire(pid, "safe_mode_disabled",
                                    target=name, extra=cmdline[:120])
 
-                # §III-D-2d  vssadmin / wmic -> VSS deletion
+             
                 if name in ("vssadmin.exe", "wmic.exe", "wbadmin.exe"):
                     if any(kw in cmdline for kw in
                            ("delete", "shadowcopy", "shadows")):
                         self._fire(pid, "vss_deletion",
                                    target=name, extra=cmdline[:120])
 
-                # §III-D-2b  Crypto API DLL loading (Windows only)
+           
                 if platform.system() == "Windows":
                     try:
                         dlls = set()
@@ -559,7 +474,7 @@ class BehaviorDetector:
                                 dlls.add(dll_name)
                         hits = dlls & CRYPTO_DLLS
                         if hits and pid not in self._seen_pids:
-                            # Only flag if MULTIPLE crypto DLLs loaded together
+                           
                             if len(hits) >= 3:
                                 self._fire(pid, "crypto_api_usage",
                                            target=name,
@@ -567,7 +482,7 @@ class BehaviorDetector:
                     except (psutil.AccessDenied, psutil.NoSuchProcess):
                         pass
 
-                # §III-D-2e  Registry persistence (Windows only)
+               
                 if platform.system() == "Windows":
                     self._check_registry(pid, proc)
 
@@ -575,14 +490,8 @@ class BehaviorDetector:
                     psutil.ZombieProcess):
                 pass
 
-    # ---------------------------------------------------------------------- #
     def _check_registry(self, pid: int, proc):
-        """
-        Simulate registry monitoring on Windows.
-        A real implementation would use RegNotifyChangeKeyValue or
-        a kernel callback (paper §IV-B).
-        Here we check proc's open handles for registry paths.
-        """
+      
         try:
             for h in proc.open_files():
                 for key in SUSPICIOUS_REGISTRY_KEYS:
@@ -593,12 +502,8 @@ class BehaviorDetector:
         except (psutil.AccessDenied, psutil.NoSuchProcess):
             pass
 
-    # ---------------------------------------------------------------------- #
     def _simulate_scan(self):
-        """
-        Fallback simulation when psutil is unavailable.
-        Parses `ps` output (Linux/macOS) for suspicious binary names.
-        """
+    
         if platform.system() == "Windows":
             return
         try:
@@ -621,14 +526,9 @@ class BehaviorDetector:
         except Exception:
             pass
 
-    # ---------------------------------------------------------------------- #
+  
     def check_file_entropy(self, path: str, pid: int = 0) -> Optional[float]:
-        """
-        Paper §III-D-3g: "Entropy of data buffer in memory modified during
-        file write operation to a value around 8 indicates encryption."
-        We approximate by reading the file and computing Shannon entropy.
-        Returns entropy value; fires feature if > 7.5.
-        """
+      
         try:
             data = Path(path).read_bytes()
             if not data:
@@ -647,7 +547,7 @@ class BehaviorDetector:
         except Exception:
             return None
 
-    # ---------------------------------------------------------------------- #
+ 
     @staticmethod
     def _shannon_entropy(data: bytes) -> float:
         from math import log2
@@ -661,27 +561,18 @@ class BehaviorDetector:
             if c > 0
         )
 
-    # ---------------------------------------------------------------------- #
+  
     def _fire(self, pid: int, feature: str,
               target: str = "", extra: str = ""):
-        """Record feature only once per pid to avoid score inflation."""
+       
         key = (pid, feature)
         if key not in self._seen_pids:
             self._seen_pids.add(key)
             self.collector.record_feature(pid, feature,
                                           target=target, extra=extra)
 
-
-# ═══════════════════════════════════════════════════════════════════════════ #
-# §7  INTEGRITY POLLER                                                        #
-#     Periodic checksum verification catches writes that bypass inotify.      #
-# ═══════════════════════════════════════════════════════════════════════════ #
-
 class IntegrityPoller:
-    """
-    Periodically calls HoneyFileManager.verify_integrity() to detect
-    content changes not caught by watchdog (e.g., direct disk writes).
-    """
+   
     def __init__(self, honey_mgr: HoneyFileManager,
                  collector: FeatureCollector,
                  logger: RansomWallLogger,
@@ -718,26 +609,7 @@ class IntegrityPoller:
             time.sleep(self.interval)
 
 
-# ═══════════════════════════════════════════════════════════════════════════ #
-# §8  TRAP LAYER  –  main orchestrator                                        #
-# ═══════════════════════════════════════════════════════════════════════════ #
-
 class TrapLayer:
-    """
-    RansomWall Honey Files & Trap Layer
-
-    Orchestrates:
-      • HoneyFileManager  – deploy / track honey files
-      • TrapEventHandler  – watchdog filesystem monitoring
-      • BehaviorDetector  – process-level behavior scanning
-      • IntegrityPoller   – periodic checksum validation
-      • FeatureCollector  – per-process scoring & flagging
-
-    Public API:
-      start()             – deploy honey files, start all monitors
-      stop()              – clean shutdown (optionally removes honey files)
-      get_status(pid)     – returns detection result dict
-    """
 
     def __init__(self,
                  watch_dirs: Optional[List[Path]] = None,
@@ -747,7 +619,7 @@ class TrapLayer:
         self.watch_dirs      = watch_dirs or get_honey_directories()
         self.cleanup_on_exit = cleanup_on_exit
 
-        # Core components
+       
         self.logger    = RansomWallLogger(log_path)
         self.collector = FeatureCollector(self.logger)
         self.honey_mgr = HoneyFileManager(self.logger)
@@ -755,22 +627,20 @@ class TrapLayer:
         self.poller    = IntegrityPoller(self.honey_mgr, self.collector,
                                          self.logger)
 
-        # watchdog
+        
         self._observer = Observer()
         self._handler  = TrapEventHandler(self.honey_mgr,
                                           self.collector, self.logger)
         self._running  = False
 
-    # ---------------------------------------------------------------------- #
+
     def start(self):
         if self._running:
             return
         self._running = True
-
-        # 1. Deploy honey files
         self.honey_mgr.deploy(self.watch_dirs)
 
-        # 2. Schedule watchdog observers for each directory
+     
         for d in self.watch_dirs:
             if d.exists():
                 self._observer.schedule(self._handler, str(d), recursive=True)
@@ -780,15 +650,13 @@ class TrapLayer:
             f"[TrapLayer] Watchdog monitoring {len(self.watch_dirs)} dirs."
         )
 
-        # 3. Behavior scanner (process-level)
         self.behavior.start(interval=2.0)
 
-        # 4. Integrity poller (fallback checksum verification)
+    
         self.poller.start()
 
         self.logger.info("[TrapLayer] All subsystems active. Monitoring…")
 
-    # ---------------------------------------------------------------------- #
     def stop(self):
         self.logger.info("[TrapLayer] Shutting down…")
         self._observer.stop()
@@ -800,7 +668,7 @@ class TrapLayer:
         self._running = False
         self.logger.info("[TrapLayer] Shutdown complete.")
 
-    # ---------------------------------------------------------------------- #
+
     def get_status(self, pid: Optional[int] = None) -> dict:
         """
         Paper §IV-A integration hook:
@@ -809,19 +677,16 @@ class TrapLayer:
         """
         return self.collector.get_status(pid)
 
-    # ---------------------------------------------------------------------- #
+
     def inject_test_event(self, feature: str, pid: int = 9999,
                           target: str = "test"):
-        """
-        Manually inject a feature event for testing / unit-test harness.
-        Simulates what a kernel IRP filter would report.
-        """
+   
         self.collector.record_feature(pid, feature, target=target,
                                       extra="injected-test")
 
-    # ---------------------------------------------------------------------- #
+  
     def run_forever(self):
-        """Blocking loop; prints status every 10 seconds."""
+        
         self.start()
         try:
             while True:
@@ -842,21 +707,13 @@ class TrapLayer:
             self.stop()
 
 
-# ═══════════════════════════════════════════════════════════════════════════ #
-# §9  DEMO / SELF-TEST                                                        #
-# ═══════════════════════════════════════════════════════════════════════════ #
-
 def run_demo():
-    """
-    Demonstrates the Trap Layer without needing actual ransomware.
-    Simulates each feature trigger type and prints the resulting status.
-    """
+   
     print("\n" + "═" * 65)
-    print("  RansomWall – Honey Files & Trap Layer  (Demo / Self-Test)")
-    print("  Based on COMSNETS 2018 paper by Shaukat & Ribeiro, IIT Delhi")
+    print("  RansomWall – Honey Files & Trap Layer")
     print("═" * 65 + "\n")
 
-    # Use a temp directory so we don't touch real user files
+   
     demo_dir = Path(tempfile.mkdtemp(prefix="rw_demo_"))
     trap = TrapLayer(
         watch_dirs=[demo_dir],
@@ -866,50 +723,48 @@ def run_demo():
 
     print(f"[Demo] Watch directory: {demo_dir}")
     trap.start()
-    time.sleep(1)   # let watchdog settle
+    time.sleep(1)   
 
     print("\n[Demo] Simulating Ransomware attack events …\n")
 
-    sim_pid = 1337   # fake ransomware PID
+    sim_pid = 1337 
 
-    # — Honey file write (paper §III-D-2a)
+    
     print("  [1/5] Honey file write")
     trap.inject_test_event("honey_file_write", pid=sim_pid,
                            target=str(demo_dir / "__rw_honey__file.docx"))
     time.sleep(0.3)
 
-    # — Honey file rename (paper §III-D-2a)
+
     print("  [2/5] Honey file rename")
     trap.inject_test_event("honey_file_rename", pid=sim_pid,
                            target=str(demo_dir / "__rw_honey__file.docx"))
     time.sleep(0.3)
 
-    # — Safe-mode disabling via bcdedit (paper §III-D-2c)
     print("  [3/5] Safe-mode boot disable (bcdedit)")
     trap.inject_test_event("safe_mode_disabled", pid=sim_pid,
                            target="bcdedit.exe")
     time.sleep(0.3)
 
-    # — VSS deletion via vssadmin (paper §III-D-2d)
+ 
     print("  [4/5] Volume Shadow Copy deletion (vssadmin)")
     trap.inject_test_event("vss_deletion", pid=sim_pid,
                            target="vssadmin.exe")
     time.sleep(0.3)
 
-    # — Crypto API usage (paper §III-D-2b)
+   
     print("  [5/5] Suspicious Crypto API usage")
     trap.inject_test_event("crypto_api_usage", pid=sim_pid,
                            target="rsaenh.dll,bcrypt.dll,crypt32.dll")
     time.sleep(0.5)
 
-    # — Now also trigger a REAL watchdog event by modifying a honey file
+  
     honey_files = list(trap.honey_mgr.honey_files)
     if honey_files:
         print("\n[Demo] Physically writing to a honey file to test watchdog …")
         Path(honey_files[0]).write_text("ENCRYPTED_DATA_SIMULATION")
-        time.sleep(1.5)   # watchdog needs a moment
+        time.sleep(1.5)  
 
-    # Print results
     print("\n" + "═" * 65)
     print("  DETECTION RESULTS")
     print("═" * 65)
@@ -935,15 +790,9 @@ def run_demo():
     print("\n[Demo] Complete. Log saved to ransomwall_trap.log\n")
 
 
-# ═══════════════════════════════════════════════════════════════════════════ #
-# Entry point                                                                 #
-# ═══════════════════════════════════════════════════════════════════════════ #
-
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "--monitor":
-        # Real monitoring mode
         trap = TrapLayer()
         trap.run_forever()
     else:
-        # Self-test / demo mode
         run_demo()
